@@ -100,7 +100,6 @@ public class signup_page extends AppCompatActivity implements View.OnClickListen
 
     private void updateUI(FirebaseUser user) {
             Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-            intent.putExtra("userPic",user.getPhotoUrl());
             startActivity(intent);
     }
 

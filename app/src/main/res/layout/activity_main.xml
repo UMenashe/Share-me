@@ -29,16 +29,22 @@
             android:layoutDirection="ltr"
             android:layout_marginTop="30dp"
             >
+            <androidx.cardview.widget.CardView
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginEnd="105dp"
+                android:elevation="12dp"
+                android:id="@+id/view2"
+                app:cardCornerRadius="40dp"
+                android:layout_centerHorizontal="true">
+                <ImageView
+                    android:id="@+id/userImage"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/userprofile"
+                    />
+            </androidx.cardview.widget.CardView>
 
-        <Button
-            android:id="@+id/button1"
-            android:layout_width="50dp"
-            android:layout_height="60dp"
-            android:layout_marginEnd="105dp"
-            android:text="😃"
-            android:textSize="20dp"
-            android:background="@drawable/cricleshape"
-             />
 
         <TextView
             android:id="@+id/textView1"
@@ -47,7 +53,6 @@
             android:text="הרשימות שלי"
             android:textSize="25dp"
             android:textStyle="bold" />
-
 
         </LinearLayout>
         <EditText
@@ -70,6 +75,20 @@
         android:orientation="vertical">
 
 
+        <androidx.gridlayout.widget.GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone"
+            >
+
+            <GridView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/gv"
+                app:layout_column="0"
+                app:layout_row="0" />
+        </androidx.gridlayout.widget.GridLayout>
+
         <TextView
             android:id="@+id/textView2"
             android:layout_width="wrap_content"
@@ -78,7 +97,6 @@
             android:layout_gravity="center"
             android:textSize="25dp"
             android:textStyle="bold" />
-
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
@@ -88,13 +106,7 @@
             android:layout_gravity="bottom|end"
             />
 
-        <ImageView
-            android:id="@+id/userImage"
-            android:layout_gravity="center|top"
-            android:layout_marginTop="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:srcCompat="@tools:sample/avatars" />
+
     </FrameLayout>
 
     </LinearLayout>
