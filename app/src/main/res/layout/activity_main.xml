@@ -11,14 +11,6 @@
         android:orientation="vertical">
 
 
-<!--        <com.google.android.material.floatingactionbutton.FloatingActionButton-->
-<!--            android:id="@+id/floatingActionButton2"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_gravity="bottom|right"-->
-<!--            android:clickable="true"-->
-<!--            app:srcCompat="@android:drawable/ic_menu_add" />-->
-
         <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

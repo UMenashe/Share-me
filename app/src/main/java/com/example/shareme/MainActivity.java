@@ -67,6 +67,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String timeObj = String.valueOf(LocalDateTime.now());
         Docinfo newdoc = new Docinfo(type,newRef.getKey(),timeObj,timeObj,title,currentUser.getUid());
         newRef.setValue(newdoc);
+        Intent displayListIntent = new Intent(this,list_display.class);
+        displayListIntent.putExtra("owner",newdoc.getOwner());
+        displayListIntent.putExtra("id",newdoc.getId());
+        startActivity(displayListIntent);
     }
 
     @Override

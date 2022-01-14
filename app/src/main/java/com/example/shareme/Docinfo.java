@@ -8,6 +8,7 @@ public class Docinfo {
     private String title;
     private String owner;
 
+    public Docinfo() { }
     public Docinfo(String type, String id, String createTime, String lastUpdate, String title, String owner) {
         this.type = type;
         this.id = id;
