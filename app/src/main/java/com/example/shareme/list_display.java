@@ -4,10 +4,16 @@ import static android.content.ContentValues.TAG;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -17,11 +23,21 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-public class list_display extends AppCompatActivity implements View.OnClickListener {
+import java.util.ArrayList;
+
+public class list_display extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
 MaterialToolbar topAppBar;
 FirebaseDatabase database;
 DatabaseReference myRef;
 String id ,owner;
+Dialog addialog;
+Button addbtn;
+TextView alertTv;
+ListView lv;
+ListItemTarget lit;
+private ArrayList<ListItemTarget> listItems;
+private ItemsListAdapter adap;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +46,12 @@ String id ,owner;
             getSupportActionBar().hide();
         }
         topAppBar = findViewById(R.id.topAppBar);
+        addbtn = findViewById(R.id.addbtn);
+        alertTv = findViewById(R.id.alert);
+        lv = findViewById(R.id.lvitems);
+        addbtn.setOnClickListener(this);
+        lv.setOnItemClickListener(this);
+        listItems = new ArrayList<ListItemTarget>();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference();
         Intent intent=getIntent();
@@ -51,8 +73,37 @@ String id ,owner;
             }
         };
         itemRef.addValueEventListener(postListener);
-
+        loadItems();
     }
+
+    private void loadItems() {
+        if(listItems.isEmpty()){
+            alertTv.setText("אין פריטים ברשימה");
+            alertTv.setVisibility(View.VISIBLE);
+            return;
+        }else{
+            alertTv.setVisibility(View.INVISIBLE);
+        }
+        adap = new ItemsListAdapter(this, R.layout.list_item, listItems);
+        lv.setAdapter(adap);
+    }
+    public void addItemTolist(){
+      ListItemTarget li = new ListItemTarget("ניסוי",10,"et");
+      listItems.add(li);
+      loadItems();
+    }
+
+//    public void showAddItemDialog()
+//    {
+//        addialog= new Dialog(this);
+//        addialog.setContentView(R.layout.custom_layout);
+//        addialog.setTitle("add item");
+//        addialog.setCancelable(true);
+//        btnCustomLogin=d.findViewById(R.id.btnDialogLogin);
+//        btnCustomLogin.setOnClickListener(this);
+//        addialog.show();
+//    }
+
 
     public void loadInfo(Docinfo docinfo){
         topAppBar.setTitle(docinfo.getTitle());
@@ -60,6 +111,19 @@ String id ,owner;
     }
     @Override
     public void onClick(View v) {
+      if(v == addbtn){
+          addItemTolist();
+      }
+    }
 
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        long viewId = view.getId();
+        if (viewId == R.id.btnplus) {
+
+          lit = listItems.get(position);
+          lit.setCurrentCount(lit.getCurrentCount() +1);
+          loadItems();
+        }
     }
 }

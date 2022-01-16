@@ -7,12 +7,12 @@ public class ListItemTarget {
     private String id;
     private boolean isComplete;
 
-    public ListItemTarget(String name, int targetCount, int currentCount, String id, boolean isComplete) {
+    public ListItemTarget(String name, int targetCount, String id) {
         this.name = name;
         this.targetCount = targetCount;
-        this.currentCount = currentCount;
+        this.currentCount = 0;
         this.id = id;
-        this.isComplete = isComplete;
+        this.isComplete = false;
     }
 
     public String getName() {

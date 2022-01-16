@@ -25,7 +25,7 @@
     </com.google.android.material.appbar.AppBarLayout>
 
     <LinearLayout
-        android:layout_width="409dp"
+        android:layout_width="match_parent"
         android:layout_height="673dp"
         android:orientation="vertical"
         android:background="#F6F6F6"
@@ -33,15 +33,31 @@
         tools:layout_editor_absoluteY="57dp"
         tools:ignore="MissingConstraints">
 
+        <TextView
+            android:id="@+id/alert"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="250dp"
+            android:text=""
+            android:visibility="gone"
+            android:textSize="20sp"
+            android:textStyle="bold"/>
         <ListView
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:dividerHeight="10.0sp"
             android:divider="@android:color/transparent"
             android:id="@+id/lvitems"
             />
-    </LinearLayout>
 
+        <Button
+            android:id="@+id/addbtn"
+            android:layout_gravity="center"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="add item" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
