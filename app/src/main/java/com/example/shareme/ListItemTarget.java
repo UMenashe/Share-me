@@ -7,6 +7,7 @@ public class ListItemTarget {
     private String id;
     private boolean isComplete;
 
+    public ListItemTarget(){}
     public ListItemTarget(String name, int targetCount, String id) {
         this.name = name;
         this.targetCount = targetCount;
@@ -53,5 +54,11 @@ public class ListItemTarget {
 
     public void setComplete(boolean complete) {
         isComplete = complete;
+    }
+
+    public void addCount(){
+        if(this.currentCount < this.targetCount){
+            this.currentCount += 1;
+        }
     }
 }

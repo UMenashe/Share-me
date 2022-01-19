@@ -94,6 +94,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 gridItems = new ArrayList<Docinfo>();
+                if(dataSnapshot.getValue() == "null"){
+                    loadGridItems();
+                    return;
+                }
                 for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
                     Docinfo d = postSnapshot.getValue(Docinfo.class);
                     gridItems.add(d);
@@ -125,6 +129,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void addDoc(String type,String title){
         DatabaseReference newRef = myRef.child("users").child(currentUser.getUid()).child("userdocs").push();
+        DatabaseReference Itemsofdocs = myRef.child("users").child(currentUser.getUid()).child("Itemsofdocs").child(newRef.getKey());
+        Itemsofdocs.setValue("null");
         String timeObj = String.valueOf(LocalDateTime.now());
         Docinfo newdoc = new Docinfo(type,newRef.getKey(),timeObj,timeObj,title,currentUser.getUid());
         newRef.setValue(newdoc);
@@ -164,8 +170,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
         if(v == btndelete){
             gridItems.remove(docItemSelected);
-//            myRef.child("users").child(currentUser.getUid()).child("userdocs")
-//                    .child(docItemSelected.getId()).removeValue();
+            if(gridItems.isEmpty()){
+                myRef.child("users").child(currentUser.getUid()).child("userdocs").setValue("null");
+                myRef.child("users").child(currentUser.getUid()).child("Itemsofdocs").setValue("null");
+            }else {
+                myRef.child("users").child(currentUser.getUid()).child("userdocs")
+                        .child(docItemSelected.getId()).removeValue();
+                myRef.child("users").child(currentUser.getUid()).child("Itemsofdocs").child(docItemSelected.getId()).removeValue();
+            }
             loadGridItems();
            bottomSheetDialog.dismiss();
         }
