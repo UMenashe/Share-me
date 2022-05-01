@@ -2,14 +2,18 @@ package com.example.shareme;
 
 import static android.content.ContentValues.TAG;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,10 +22,13 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationBarMenu;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.database.DataSnapshot;
@@ -32,7 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
-public class list_display extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener {
+public class list_display extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, Toolbar.OnMenuItemClickListener {
 MaterialToolbar topAppBar;
 FirebaseDatabase database;
 DatabaseReference myRef;
@@ -48,6 +55,12 @@ BottomSheetDialog bottomSheetDialog;
 Button btnadditem;
 TextInputEditText itemname,countarget;
 TextInputLayout layoutname,layoutcount;
+Dialog shareDialog;
+EditText useremail;
+Button btnshare;
+Docinfo di;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +75,14 @@ TextInputLayout layoutname,layoutcount;
         lv = findViewById(R.id.lvitems);
         addbtn.setOnClickListener(this);
         lv.setOnItemClickListener(this);
+        topAppBar.setOnMenuItemClickListener(this);
+        topAppBar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent mainpage = new Intent(getApplicationContext(),MainActivity.class);
+                startActivity(mainpage);
+            }
+        });
         listItems = new ArrayList<ListItemTarget>();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference();
@@ -69,13 +90,13 @@ TextInputLayout layoutname,layoutcount;
        owner = intent.getExtras().getString("owner");
        id = intent.getExtras().getString("id");
         DatabaseReference itemRef =  myRef.child("users").child(owner).child("userdocs").child(id);
-        DatabaseReference Itemsofdocs = myRef.child("users").child(owner).child("Itemsofdocs").child(id);
+        DatabaseReference Itemsofdocs = myRef.child("Itemsofdocs").child(id);
 
         ValueEventListener postListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                Docinfo d = dataSnapshot.getValue(Docinfo.class);
-                loadInfo(d);
+                di = dataSnapshot.getValue(Docinfo.class);
+                loadInfo(di);
             }
 
             @Override
@@ -121,7 +142,7 @@ TextInputLayout layoutname,layoutcount;
         lv.setAdapter(adap);
     }
     public void addItemTolist(String name,String targetCount){
-        DatabaseReference itemRef = myRef.child("users").child(owner).child("Itemsofdocs").child(id).push();
+        DatabaseReference itemRef = myRef.child("Itemsofdocs").child(id).push();
         ListItemTarget li = new ListItemTarget(name,Integer.parseInt(targetCount),itemRef.getKey());
         listItems.add(li);
         itemRef.setValue(li);
@@ -148,6 +169,20 @@ TextInputLayout layoutname,layoutcount;
         bottomSheetDialog.show();
     }
 
+    public void createShareDialog()
+    {
+        shareDialog= new Dialog(this);
+        shareDialog.setContentView(R.layout.share_dialog);
+        Window window = shareDialog.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        shareDialog.setCancelable(true);
+        useremail = shareDialog.findViewById(R.id.emailuser);
+        btnshare = shareDialog.findViewById(R.id.btnshare);
+        btnshare.setOnClickListener(this);
+        shareDialog.show();
+    }
+
+
 
     public void loadInfo(Docinfo docinfo){
         topAppBar.setTitle(docinfo.getTitle());
@@ -172,6 +207,32 @@ TextInputLayout layoutname,layoutcount;
           addItemTolist(nameitemtext,counttargettext);
           bottomSheetDialog.dismiss();
       }
+
+      if(v == btnshare){
+          String emailstr = useremail.getText().toString();
+          if(useremail.length() == 0){
+              useremail.setError("הכנס אימייל");
+              useremail.requestFocus();
+              return;
+          }
+          emailstr = emailstr.split("@")[0];
+          DatabaseReference itemRef =  myRef.child("usersuid").child(emailstr);
+          itemRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+              @Override
+              public void onComplete(@NonNull Task<DataSnapshot> task) {
+                  if (!task.getResult().exists()) {
+                      useremail.setError("המשתמש לא נמצא");
+                      useremail.requestFocus();
+                  }
+                  else {
+                      DatabaseReference userRef =  myRef.child("users").child((String) task.getResult().getValue()).child("userdocs").child(id);
+                      userRef.setValue(di);
+                      Toast.makeText(getApplicationContext(),"share success",Toast.LENGTH_LONG).show();
+                  }
+              }
+          });
+      }
+
     }
 
     @Override
@@ -184,5 +245,13 @@ TextInputLayout layoutname,layoutcount;
             item.setValue(lit);
             loadItems();
         }
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        if(item.getItemId() == R.id.share){
+            createShareDialog();
+        }
+        return false;
     }
 }

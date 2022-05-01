@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ShareMe">
         <activity
+            android:name=".user_page"
+            android:exported="false" />
+        <activity
             android:name=".list_display"
             android:exported="false" />
         <activity

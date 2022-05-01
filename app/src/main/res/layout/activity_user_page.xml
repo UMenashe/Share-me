@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".user_page">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#f2f2f7"
+        android:orientation="vertical">
+        <androidx.cardview.widget.CardView
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:elevation="12dp"
+            android:layout_marginTop="40dp"
+            android:layout_gravity="center"
+            app:cardCornerRadius="40dp"
+            android:layout_centerHorizontal="true">
+            <ImageView
+                android:id="@+id/userImage"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                android:src="@drawable/userprofile"
+                />
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/username"
+            android:layout_width="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="25dp"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="20dp"
+            android:text="TextView" />
+
+        <LinearLayout
+            android:layout_width= "match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shaperadius"
+            android:layout_marginHorizontal="20dp"
+            android:layout_marginVertical="30dp"
+            android:backgroundTintMode="screen"
+            android:backgroundTint="@color/white"
+            android:gravity="center_vertical"
+            android:layoutDirection="rtl"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:tint="@color/gray_600"
+                android:contentDescription="share"
+                android:src="@drawable/ic_baseline_email_24"
+                tools:ignore="UseAppTint" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/useremail"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="25dp"
+                android:text="example@gmail.com"
+                android:textColor="@color/gray_600"
+                android:textSize="15sp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width= "match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/btnedit"
+            android:background="@drawable/shaperadius"
+            android:backgroundTintMode="screen"
+            android:backgroundTint="@color/white"
+            android:layout_marginVertical="10dp"
+            android:layout_marginHorizontal="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:gravity="center_vertical"
+            android:layoutDirection="rtl"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:tint="#3F51B5"
+                android:contentDescription="share"
+                android:src="@drawable/ic_baseline_edit_24"
+                tools:ignore="UseAppTint" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="25dp"
+                android:text="עריכת פרופיל"
+                android:textColor="#CB3F51B5"
+                android:textSize="16sp"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width= "match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shaperadius"
+            android:backgroundTintMode="screen"
+            android:id="@+id/btnlogout"
+            android:backgroundTint="@color/white"
+            android:layout_marginVertical="30dp"
+            android:layout_marginHorizontal="20dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:layoutDirection="rtl"
+            android:orientation="horizontal"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:tint="#FF1744"
+                android:contentDescription="share"
+                android:src="@drawable/ic_baseline_logout"
+                tools:ignore="UseAppTint" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="25dp"
+                android:text="התנתק"
+                android:textColor="#FF1744"
+                android:textSize="16sp"/>
+        </LinearLayout>
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

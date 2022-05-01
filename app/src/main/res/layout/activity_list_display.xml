@@ -17,6 +17,7 @@
             app:navigationIcon="?attr/actionModeCloseDrawable"
             app:title="my list"
             app:subtitle="last update 18:24"
+            app:menu="@menu/top_app_bar"
             app:subtitleCentered="true"
             app:titleCentered="true"
             style="@style/Widget.MaterialComponents.Toolbar.PrimarySurface"

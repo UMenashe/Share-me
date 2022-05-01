@@ -3,6 +3,7 @@ package com.example.shareme;
 import static android.content.ContentValues.TAG;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -53,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     ProgressBar pb;
     BottomSheetDialog bottomSheetDialog;
     LinearLayout btndelete;
+    CardView viewprofile;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,9 +67,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         gvdocs = findViewById(R.id.gvdocs);
         im = findViewById(R.id.userImage);
         alert2 = findViewById(R.id.alert2);
+        viewprofile = findViewById(R.id.viewprofile);
         alert2.setVisibility(View.INVISIBLE);
         pb = findViewById(R.id.pb);
         pb.setVisibility(View.VISIBLE);
+        viewprofile.setOnClickListener(this);
         gvdocs.setOnItemClickListener(this);
         gvdocs.setOnItemLongClickListener(this);
         mAuth = FirebaseAuth.getInstance();
@@ -76,9 +80,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Toast.makeText(MainActivity.this, currentUser.getDisplayName(), Toast.LENGTH_SHORT).show();
             database = FirebaseDatabase.getInstance();
             myRef = database.getReference();
+            String email = currentUser.getEmail().split("@")[0];
+            myRef.child("usersuid").child(email).setValue(currentUser.getUid());
             getDatabase(myRef.child("users").child(currentUser.getUid()).child("userdocs"));
-//            Toast.makeText(this,String.valueOf(currentUser.getPhotoUrl()),Toast.LENGTH_LONG).show();
-//            Picasso.get().load(currentUser.getPhotoUrl()).into(im);
+            Picasso.get().load(currentUser.getPhotoUrl()).into(im);
         }else{
             showSignUpage();
         }
@@ -129,8 +134,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void addDoc(String type,String title){
         DatabaseReference newRef = myRef.child("users").child(currentUser.getUid()).child("userdocs").push();
-        DatabaseReference Itemsofdocs = myRef.child("users").child(currentUser.getUid()).child("Itemsofdocs").child(newRef.getKey());
-        Itemsofdocs.setValue("null");
         String timeObj = String.valueOf(LocalDateTime.now());
         Docinfo newdoc = new Docinfo(type,newRef.getKey(),timeObj,timeObj,title,currentUser.getUid());
         newRef.setValue(newdoc);
@@ -180,6 +183,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             loadGridItems();
            bottomSheetDialog.dismiss();
+        }
+
+        if(v == viewprofile){
+            Intent userpage = new Intent(this,user_page.class);
+            startActivity(userpage);
         }
     }
 
