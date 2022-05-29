@@ -31,18 +31,26 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationBarMenu;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class list_display extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, Toolbar.OnMenuItemClickListener {
 MaterialToolbar topAppBar;
 FirebaseDatabase database;
 DatabaseReference myRef;
+FirebaseAuth mAuth;
+FirebaseUser currentUser;
 String id ,owner;
 Dialog addialog;
 FloatingActionButton addbtn;
@@ -51,14 +59,15 @@ ListView lv;
 ListItemTarget lit;
 private ArrayList<ListItemTarget> listItems;
 private ItemsListAdapter adap;
-BottomSheetDialog bottomSheetDialog;
+BottomSheetDialog bottomSheetDialog,bottomSheetDetails;
 Button btnadditem;
-TextInputEditText itemname,countarget;
-TextInputLayout layoutname,layoutcount;
+TextInputEditText itemname,countarget,itemnamedetails,countdetails;
+TextInputLayout layoutname,layoutcount,layoutnamedet,layoutcountdet;
 Dialog shareDialog;
 EditText useremail;
 Button btnshare;
 Docinfo di;
+LinearLayout btnpic;
 
 
 
@@ -86,6 +95,8 @@ Docinfo di;
         listItems = new ArrayList<ListItemTarget>();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference();
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
         Intent intent=getIntent();
        owner = intent.getExtras().getString("owner");
        id = intent.getExtras().getString("id");
@@ -128,6 +139,7 @@ Docinfo di;
             }
         };
         Itemsofdocs.addValueEventListener(itemsListener);
+        show_Details_Sheet();
     }
 
     private void loadItems() {
@@ -143,7 +155,9 @@ Docinfo di;
     }
     public void addItemTolist(String name,String targetCount){
         DatabaseReference itemRef = myRef.child("Itemsofdocs").child(id).push();
-        ListItemTarget li = new ListItemTarget(name,Integer.parseInt(targetCount),itemRef.getKey());
+        Map<String, Integer> m = new HashMap<>();
+        m.put(owner,0);
+        ListItemTarget li = new ListItemTarget(name,Integer.parseInt(targetCount),itemRef.getKey(),m);
         listItems.add(li);
         itemRef.setValue(li);
         loadItems();
@@ -167,6 +181,26 @@ Docinfo di;
         bottomSheetDialog.setCancelable(true);
         bottomSheetDialog.setCanceledOnTouchOutside(true);
         bottomSheetDialog.show();
+    }
+
+    public void show_Details_Sheet(){
+        bottomSheetDetails = new BottomSheetDialog(
+                list_display.this,R.style.BottomSheetDialogTheme);
+        View bottomSheetView = LayoutInflater.from(getApplicationContext()).inflate(
+                R.layout.list_item_details,
+                (LinearLayout)findViewById(R.id.bottomsheetdetails)
+        );
+
+        itemnamedetails = bottomSheetView.findViewById(R.id.itemnamedetails);
+        countdetails = bottomSheetView.findViewById(R.id.countdetails);
+        btnpic = bottomSheetView.findViewById(R.id.btnpic);
+        layoutnamedet = bottomSheetView.findViewById(R.id.layoutnamedet);
+        layoutcountdet = bottomSheetView.findViewById(R.id.layoutcountdet);
+        btnpic.setOnClickListener(this);
+        bottomSheetDetails.setContentView(bottomSheetView);
+        bottomSheetDetails.setCancelable(true);
+        bottomSheetDetails.setCanceledOnTouchOutside(true);
+        bottomSheetDetails.show();
     }
 
     public void createShareDialog()
@@ -235,14 +269,41 @@ Docinfo di;
 
     }
 
+    private void onStarClicked(DatabaseReference postRef) {
+        postRef.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                ListItemTarget p = mutableData.getValue(ListItemTarget.class);
+                if (p == null) {
+                    return Transaction.success(mutableData);
+                }
+
+                p.addCount();
+                Map<String, Integer> m1 = p.getCountPerUser();
+                m1.put(currentUser.getUid(), m1.get(currentUser.getUid()) + 1);
+                p.setCountPerUser(m1);
+                // Set value and report transaction success
+                mutableData.setValue(p);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean committed,
+                                   DataSnapshot currentData) {
+                // Transaction completed
+                Log.d(TAG, "postTransaction:onComplete:" + databaseError);
+            }
+        });
+    }
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         long viewId = view.getId();
+        Toast.makeText(this,"test0", Toast.LENGTH_SHORT).show();
         if (viewId == R.id.btnplus) {
           lit = listItems.get(position);
-            lit.addCount();
-            DatabaseReference item= myRef.child("users").child(owner).child("Itemsofdocs").child(this.id).child(lit.getId());
-            item.setValue(lit);
+            DatabaseReference item= myRef.child("Itemsofdocs").child(this.id).child(lit.getId());
+            onStarClicked(item);
             loadItems();
         }
     }
@@ -254,4 +315,5 @@ Docinfo di;
         }
         return false;
     }
+
 }

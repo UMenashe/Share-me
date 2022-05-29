@@ -20,9 +20,11 @@
         <entry key="..\:/Shareme/app/src/main/res/layout/layout_bottom_sheet_action.xml" value="0.264" />
         <entry key="..\:/Shareme/app/src/main/res/layout/layout_choose_type.xml" value="0.24728260869565216" />
         <entry key="..\:/Shareme/app/src/main/res/layout/list_item.xml" value="0.25" />
+        <entry key="..\:/Shareme/app/src/main/res/layout/list_item_details.xml" value="0.176" />
         <entry key="..\:/Shareme/app/src/main/res/layout/row_item.xml" value="0.264" />
         <entry key="..\:/Shareme/app/src/main/res/layout/sample_app_bar_return.xml" value="0.23822463768115942" />
         <entry key="..\:/Shareme/app/src/main/res/layout/share_dialog.xml" value="0.2" />
+        <entry key="..\:/Shareme/app/src/main/res/layout/users_item.xml" value="0.264" />
         <entry key="..\:/Shareme/app/src/main/res/menu/top_app_bar.xml" value="0.23854166666666668" />
       </map>
     </option>

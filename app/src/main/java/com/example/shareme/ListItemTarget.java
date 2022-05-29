@@ -1,19 +1,31 @@
 package com.example.shareme;
 
+import java.util.Map;
+
 public class ListItemTarget {
     private String name;
     private int targetCount;
     private int currentCount;
     private String id;
     private boolean isComplete;
+    private Map<String, Integer> countPerUser;
 
     public ListItemTarget(){}
-    public ListItemTarget(String name, int targetCount, String id) {
+    public ListItemTarget(String name, int targetCount, String id,Map<String, Integer> countPerUser) {
         this.name = name;
         this.targetCount = targetCount;
         this.currentCount = 0;
         this.id = id;
         this.isComplete = false;
+        this.countPerUser = countPerUser;
+    }
+
+    public Map<String, Integer> getCountPerUser() {
+        return countPerUser;
+    }
+
+    public void setCountPerUser(Map<String, Integer> countPerUser) {
+        this.countPerUser = countPerUser;
     }
 
     public String getName() {
