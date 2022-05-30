@@ -8,7 +8,9 @@ import androidx.appcompat.widget.Toolbar;
 
 import android.app.Dialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -17,6 +19,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -65,9 +68,11 @@ TextInputEditText itemname,countarget,itemnamedetails,countdetails;
 TextInputLayout layoutname,layoutcount,layoutnamedet,layoutcountdet;
 Dialog shareDialog;
 EditText useremail;
-Button btnshare;
+Button btnshare,btnsave,btncancel;
 Docinfo di;
 LinearLayout btnpic;
+Bitmap bitmap;
+ImageView imgV;
 
 
 
@@ -139,7 +144,6 @@ LinearLayout btnpic;
             }
         };
         Itemsofdocs.addValueEventListener(itemsListener);
-        show_Details_Sheet();
     }
 
     private void loadItems() {
@@ -196,7 +200,15 @@ LinearLayout btnpic;
         btnpic = bottomSheetView.findViewById(R.id.btnpic);
         layoutnamedet = bottomSheetView.findViewById(R.id.layoutnamedet);
         layoutcountdet = bottomSheetView.findViewById(R.id.layoutcountdet);
+        btncancel = bottomSheetView.findViewById(R.id.btncancel);
+        btnsave = bottomSheetView.findViewById(R.id.btnsave);
+        imgV = bottomSheetView.findViewById(R.id.imgv);
+        btncancel.setOnClickListener(this);
+        btnsave.setOnClickListener(this);
         btnpic.setOnClickListener(this);
+        lit = listItems.get(0);
+        itemnamedetails.setText(lit.getName());
+        countdetails.setText(String.valueOf(lit.getTargetCount()));
         bottomSheetDetails.setContentView(bottomSheetView);
         bottomSheetDetails.setCancelable(true);
         bottomSheetDetails.setCanceledOnTouchOutside(true);
@@ -216,6 +228,25 @@ LinearLayout btnpic;
         shareDialog.show();
     }
 
+    @Override
+
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if(requestCode==0)
+
+        {
+            if(resultCode==RESULT_OK)
+
+            {
+                bitmap= (Bitmap) data.getExtras().get("data");
+                imgV.setImageBitmap(bitmap);
+
+            }
+        }
+    }
+
 
 
     public void loadInfo(Docinfo docinfo){
@@ -225,7 +256,15 @@ LinearLayout btnpic;
     @Override
     public void onClick(View v) {
       if(v == addbtn){
-          showBottomSheet();
+          show_Details_Sheet();
+      }
+      if(v == btncancel){
+          bottomSheetDetails.dismiss();
+      }
+
+      if(v == btnpic){
+          Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+          startActivityForResult(intent,0);
       }
       if(v == btnadditem){
           String nameitemtext = itemname.getText().toString();

@@ -41,6 +41,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+            android:textStyle="bold"
             android:textColor="@color/light_blue_600"
             android:background="@android:color/transparent"
             android:text="שמור" />
@@ -50,7 +51,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginVertical="20dp"
+        android:paddingVertical="20dp"
         android:background="#f2f2f7"
         android:orientation="vertical">
 
@@ -146,12 +147,22 @@
                 android:textSize="16sp"/>
         </LinearLayout>
 
+        <ImageView
+            android:id="@+id/imgv"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:layout_margin="20dp"
+            />
         <ListView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:scrollbars="none"
             android:layout_margin="15dp"
-            />
+            >
+
+        </ListView>
+
     </LinearLayout>
 
 

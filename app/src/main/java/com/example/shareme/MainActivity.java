@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -55,6 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     BottomSheetDialog bottomSheetDialog;
     LinearLayout btndelete;
     CardView viewprofile;
+    InternetBroadCast internetbroadcast;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         viewprofile.setOnClickListener(this);
         gvdocs.setOnItemClickListener(this);
         gvdocs.setOnItemLongClickListener(this);
+        internetbroadcast = new InternetBroadCast();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
@@ -117,6 +120,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
         myRef.addValueEventListener(postListener);
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter("android.net.conn.CONNECTIVITY_CHANGE");
+        registerReceiver(internetbroadcast,intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(internetbroadcast);
     }
 
     public void loadGridItems() {
