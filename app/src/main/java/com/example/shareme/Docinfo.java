@@ -1,5 +1,8 @@
 package com.example.shareme;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Docinfo {
     private String type; // targetList || generalList
     private String id;
@@ -7,6 +10,7 @@ public class Docinfo {
     private String lastUpdate;
     private String title;
     private String owner;
+    private Map<String, Boolean> participants;
 
     public Docinfo() { }
     public Docinfo(String type, String id, String createTime, String lastUpdate, String title, String owner) {
@@ -16,6 +20,16 @@ public class Docinfo {
         this.lastUpdate = lastUpdate;
         this.title = title;
         this.owner = owner;
+        this.participants = new HashMap<>();
+        this.participants.put(owner,true);
+    }
+
+    public Map<String, Boolean> getParticipants() {
+        return participants;
+    }
+
+    public void setParticipants(Map<String, Boolean> participants) {
+        this.participants = participants;
     }
 
     public String getType() {

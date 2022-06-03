@@ -26,6 +26,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.appbar.MaterialToolbar;
@@ -43,7 +45,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 
+import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,7 +79,8 @@ Docinfo di;
 LinearLayout btnpic;
 Bitmap bitmap;
 ImageView imgV;
-
+FirebaseStorage storage;
+StorageReference docSRef;
 
 
     @Override
@@ -97,15 +104,15 @@ ImageView imgV;
                 startActivity(mainpage);
             }
         });
+        storage = FirebaseStorage.getInstance();
         listItems = new ArrayList<ListItemTarget>();
         database = FirebaseDatabase.getInstance();
         myRef = database.getReference();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         Intent intent=getIntent();
-       owner = intent.getExtras().getString("owner");
        id = intent.getExtras().getString("id");
-        DatabaseReference itemRef =  myRef.child("users").child(owner).child("userdocs").child(id);
+        DatabaseReference itemRef =  myRef.child("allDocs").child(id);
         DatabaseReference Itemsofdocs = myRef.child("Itemsofdocs").child(id);
 
         ValueEventListener postListener = new ValueEventListener() {
@@ -160,7 +167,9 @@ ImageView imgV;
     public void addItemTolist(String name,String targetCount){
         DatabaseReference itemRef = myRef.child("Itemsofdocs").child(id).push();
         Map<String, Integer> m = new HashMap<>();
-        m.put(owner,0);
+        Map<String,Boolean> p = di.getParticipants();
+        for (Map.Entry<String,Boolean> entry : p.entrySet())
+            m.put(entry.getKey(),0);
         ListItemTarget li = new ListItemTarget(name,Integer.parseInt(targetCount),itemRef.getKey(),m);
         listItems.add(li);
         itemRef.setValue(li);
@@ -242,6 +251,21 @@ ImageView imgV;
             {
                 bitmap= (Bitmap) data.getExtras().get("data");
                 imgV.setImageBitmap(bitmap);
+                StorageReference itemRef = docSRef.child(lit.getId() + "/pic.jpeg");
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+                UploadTask uploadTask = itemRef.putBytes(byteArray);
+                uploadTask.addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                    }
+                }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                        bitmap.recycle();
+                    }
+                });
 
             }
         }
@@ -252,11 +276,13 @@ ImageView imgV;
     public void loadInfo(Docinfo docinfo){
         topAppBar.setTitle(docinfo.getTitle());
         topAppBar.setSubtitle(docinfo.getLastUpdate());
+        StorageReference storageRef = storage.getReference();
+        docSRef = storageRef.child(di.getId());
     }
     @Override
     public void onClick(View v) {
       if(v == addbtn){
-          show_Details_Sheet();
+          showBottomSheet();
       }
       if(v == btncancel){
           bottomSheetDetails.dismiss();
@@ -290,6 +316,7 @@ ImageView imgV;
           }
           emailstr = emailstr.split("@")[0];
           DatabaseReference itemRef =  myRef.child("usersuid").child(emailstr);
+          String finalEmailstr = emailstr;
           itemRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
               @Override
               public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -299,7 +326,9 @@ ImageView imgV;
                   }
                   else {
                       DatabaseReference userRef =  myRef.child("users").child((String) task.getResult().getValue()).child("userdocs").child(id);
+                      DatabaseReference allDRef =  myRef.child("allDocs").child(id).child("participants").child(finalEmailstr);
                       userRef.setValue(di);
+                      allDRef.setValue(true);
                       Toast.makeText(getApplicationContext(),"share success",Toast.LENGTH_LONG).show();
                   }
               }

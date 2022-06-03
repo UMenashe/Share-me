@@ -11,7 +11,6 @@ public class InternetBroadCast extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        // TODO: This method is called when the BroadcastReceiver is receiving
         String action = intent.getAction();
         if(action.equals("android.net.conn.CONNECTIVITY_CHANGE")){
             ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

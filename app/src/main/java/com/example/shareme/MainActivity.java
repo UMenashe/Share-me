@@ -33,6 +33,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.io.File;
@@ -150,16 +152,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     public void addDoc(String type,String title){
-        DatabaseReference newRef = myRef.child("users").child(currentUser.getUid()).child("userdocs").push();
+        DatabaseReference allDocsRef = myRef.child("allDocs").push();
+        DatabaseReference userdocsRef = myRef.child("users").child(currentUser.getUid()).child("userdocs").child(allDocsRef.getKey());
         String timeObj = String.valueOf(LocalDateTime.now());
-        Docinfo newdoc = new Docinfo(type,newRef.getKey(),timeObj,timeObj,title,currentUser.getUid());
-        newRef.setValue(newdoc);
+        Docinfo newdoc = new Docinfo(type,allDocsRef.getKey(),timeObj,timeObj,title,currentUser.getUid());
+        allDocsRef.setValue(newdoc);
+        userdocsRef.setValue(newdoc);
         openDocById(newdoc);
     }
 
     public void openDocById(Docinfo docItem){
         Intent displayListIntent = new Intent(this,list_display.class);
-        displayListIntent.putExtra("owner",docItem.getOwner());
         displayListIntent.putExtra("id",docItem.getId());
         startActivity(displayListIntent);
     }
@@ -191,12 +194,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(v == btndelete){
             gridItems.remove(docItemSelected);
             if(gridItems.isEmpty()){
+                myRef.child("allDocs").setValue("null");
                 myRef.child("users").child(currentUser.getUid()).child("userdocs").setValue("null");
-                myRef.child("users").child(currentUser.getUid()).child("Itemsofdocs").setValue("null");
+                myRef.child("Itemsofdocs").setValue("null");
             }else {
                 myRef.child("users").child(currentUser.getUid()).child("userdocs")
                         .child(docItemSelected.getId()).removeValue();
-                myRef.child("users").child(currentUser.getUid()).child("Itemsofdocs").child(docItemSelected.getId()).removeValue();
+                myRef.child("Itemsofdocs").child(docItemSelected.getId()).removeValue();
+                myRef.child("allDocs").child(docItemSelected.getId()).removeValue();
             }
             loadGridItems();
            bottomSheetDialog.dismiss();
