@@ -54,7 +54,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class list_display extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, Toolbar.OnMenuItemClickListener {
+public class list_display extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, Toolbar.OnMenuItemClickListener{
 MaterialToolbar topAppBar;
 FirebaseDatabase database;
 DatabaseReference myRef;
@@ -337,7 +337,7 @@ StorageReference docSRef;
 
     }
 
-    private void onStarClicked(DatabaseReference postRef) {
+    private void onStarClicked(DatabaseReference postRef,String type) {
         postRef.runTransaction(new Transaction.Handler() {
             @Override
             public Transaction.Result doTransaction(MutableData mutableData) {
@@ -345,10 +345,17 @@ StorageReference docSRef;
                 if (p == null) {
                     return Transaction.success(mutableData);
                 }
-
-                p.addCount();
                 Map<String, Integer> m1 = p.getCountPerUser();
-                m1.put(currentUser.getUid(), m1.get(currentUser.getUid()) + 1);
+                if(type.equals("plus") && !p.isTargetComplete()){
+                    p.addCount();
+                    m1.put(currentUser.getUid(), m1.get(currentUser.getUid()) + 1);
+                }
+
+                if(type.equals("minus") && !p.checkUserCount(currentUser.getUid())){
+                    p.subtractCount();
+                    m1.put(currentUser.getUid(), m1.get(currentUser.getUid()) - 1);
+                }
+
                 p.setCountPerUser(m1);
                 // Set value and report transaction success
                 mutableData.setValue(p);
@@ -367,12 +374,21 @@ StorageReference docSRef;
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         long viewId = view.getId();
-        Toast.makeText(this,"test0", Toast.LENGTH_SHORT).show();
+        lit = listItems.get(position);
         if (viewId == R.id.btnplus) {
-          lit = listItems.get(position);
             DatabaseReference item= myRef.child("Itemsofdocs").child(this.id).child(lit.getId());
-            onStarClicked(item);
+            onStarClicked(item,"plus");
             loadItems();
+        }
+
+        if(viewId == R.id.btnminus){
+            DatabaseReference item= myRef.child("Itemsofdocs").child(this.id).child(lit.getId());
+            onStarClicked(item,"minus");
+            loadItems();
+        }
+
+        if(viewId == R.id.btninfo){
+            show_Details_Sheet();
         }
     }
 
@@ -383,5 +399,4 @@ StorageReference docSRef;
         }
         return false;
     }
-
 }

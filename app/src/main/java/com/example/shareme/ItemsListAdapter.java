@@ -21,7 +21,7 @@ public class ItemsListAdapter extends ArrayAdapter<ListItemTarget> {
     private static final String TAG = "ItemsListAdapter";
     private Context mContext;
     int mResource;
-    Button btnplus;
+    Button btnplus,btnminus,btninfo;
 
     public ItemsListAdapter(Context context, int resource, ArrayList<ListItemTarget> objects) {
         super(context, resource, objects);
@@ -42,6 +42,10 @@ public class ItemsListAdapter extends ArrayAdapter<ListItemTarget> {
         TextView textname = convertView.findViewById(R.id.textname);
         TextView textcount = convertView.findViewById(R.id.textcount);
         btnplus = convertView.findViewById(R.id.btnplus);
+        btnminus = convertView.findViewById(R.id.btnminus);
+        btninfo = convertView.findViewById(R.id.btninfo);
+        setClickListener(btninfo,position,parent);
+        setClickListener(btnminus,position,parent);
         setClickListener(btnplus,position,parent);
         textname.setText(name);
         textcount.setText("כמות: "+targetCount +"/" +currentCount);

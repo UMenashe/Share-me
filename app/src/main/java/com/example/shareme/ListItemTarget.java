@@ -68,9 +68,21 @@ public class ListItemTarget {
         isComplete = complete;
     }
 
+    public boolean isTargetComplete(){
+        return this.currentCount == this.targetCount;
+    }
+
     public void addCount(){
-        if(this.currentCount < this.targetCount){
             this.currentCount += 1;
+    }
+
+    public void subtractCount() {
+        if (this.currentCount != 0) {
+            this.currentCount -= 1;
         }
+    }
+
+    public boolean checkUserCount(String uid){
+        return this.countPerUser.get(uid) == 0;
     }
 }
