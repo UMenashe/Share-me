@@ -36,6 +36,7 @@ public class ItemsListAdapter extends ArrayAdapter<ListItemTarget> {
         String name = String.valueOf(getItem(position).getName());
         String targetCount = String.valueOf(getItem(position).getTargetCount());
         String currentCount = String.valueOf(getItem(position).getCurrentCount());
+        boolean isComplete =getItem(position).isTargetComplete();
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
         convertView = inflater.inflate(mResource, parent, false);
@@ -47,8 +48,14 @@ public class ItemsListAdapter extends ArrayAdapter<ListItemTarget> {
         setClickListener(btninfo,position,parent);
         setClickListener(btnminus,position,parent);
         setClickListener(btnplus,position,parent);
+
+        if(isComplete)
+            convertView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_item_complete));
+        else
+            convertView.setBackground(mContext.getResources().getDrawable(R.drawable.shape_item));
+
         textname.setText(name);
-        textcount.setText("כמות: "+targetCount +"/" +currentCount);
+        textcount.setText(targetCount +"/" +currentCount);
         return convertView;
     }
 

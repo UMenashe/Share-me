@@ -49,15 +49,19 @@
 
         </LinearLayout>
         <EditText
-            android:id="@+id/editTextTextPersonName"
+            android:id="@+id/editsearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:layout_marginHorizontal="20dp"
             android:background="@drawable/shaperadius"
+            android:drawableRight="@drawable/ic_baseline_search_24"
+            android:drawablePadding="4dp"
+            android:backgroundTint="@color/gray_400"
             android:ems="10"
             android:inputType="text"
-            android:padding="10dp"
+            android:padding="8dp"
+            android:textSize="16dp"
             android:textDirection="rtl"
             android:hint="חיפוש"
              />

@@ -5,17 +5,22 @@ import static android.content.ContentValues.TAG;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -56,9 +61,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Docinfo docItemSelected;
     ProgressBar pb;
     BottomSheetDialog bottomSheetDialog;
-    LinearLayout btndelete;
+    LinearLayout btndelete, btnedit;
     CardView viewprofile;
     InternetBroadCast internetbroadcast;
+    Dialog editDialog;
+    EditText listName,editsearch;
+    Button btnfinish;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +86,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         viewprofile.setOnClickListener(this);
         gvdocs.setOnItemClickListener(this);
         gvdocs.setOnItemLongClickListener(this);
+        editsearch = findViewById(R.id.editsearch);
+        editsearch.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void beforeTextChanged(CharSequence s, int start,
+                                          int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start,
+                                      int before, int count) {
+                ArrayList<Docinfo> itemssearch = new ArrayList<>();
+                for(int i = 0; i< gridItems.size();i++){
+                    if(gridItems.get(i).getTitle().contains(s)){
+                        itemssearch.add(gridItems.get(i));
+                    }
+                }
+                adap = new GridItemsAdapter(getApplicationContext(), R.layout.row_item, itemssearch);
+                gvdocs.setAdapter(adap);
+            }
+        });
         internetbroadcast = new InternetBroadCast();
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
@@ -176,13 +208,28 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         );
         docItemSelected = d;
        TextView actiontitle = bottomSheetView.findViewById(R.id.actiontitle);
-        actiontitle.setText(docItemSelected.getId());
+        actiontitle.setText(docItemSelected.getTitle());
         btndelete = bottomSheetView.findViewById(R.id.btndelete);
+        btnedit = bottomSheetView.findViewById(R.id.btnedit);
+        btnedit.setOnClickListener(this);
         btndelete.setOnClickListener(this);
         bottomSheetDialog.setContentView(bottomSheetView);
         bottomSheetDialog.setCancelable(true);
         bottomSheetDialog.setCanceledOnTouchOutside(true);
         bottomSheetDialog.show();
+    }
+
+    public void createEditDialog()
+    {
+        editDialog= new Dialog(this);
+        editDialog.setContentView(R.layout.edit_dialog);
+        Window window = editDialog.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        editDialog.setCancelable(true);
+        listName = editDialog.findViewById(R.id.namelist);
+        btnfinish = editDialog.findViewById(R.id.btnfinish);
+        btnfinish.setOnClickListener(this);
+        editDialog.show();
     }
 
     @Override
@@ -207,6 +254,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
            bottomSheetDialog.dismiss();
         }
 
+        if(v == btnedit){
+            bottomSheetDialog.dismiss();
+            createEditDialog();
+        }
+
+        if(v == btnfinish){
+            String namestr = listName.getText().toString();
+            if(namestr.length() == 0){
+                listName.setError("הכנס שם");
+                listName.requestFocus();
+                return;
+            }
+            DatabaseReference itemRef =  myRef.child("allDocs").child(docItemSelected.getId()).child("title");
+            DatabaseReference itemRefuser =  myRef.child("users").child(currentUser.getUid())
+                    .child("userdocs").child(docItemSelected.getId()).child("title");
+            itemRef.setValue(namestr);
+            itemRefuser.setValue(namestr);
+            editDialog.dismiss();
+        }
         if(v == viewprofile){
             Intent userpage = new Intent(this,user_page.class);
             startActivity(userpage);

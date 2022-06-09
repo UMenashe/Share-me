@@ -60,6 +60,7 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
         android:clickable="true"
+        android:id="@+id/btnedit"
         android:focusable="true"
         android:gravity="center_vertical"
         android:orientation="horizontal"

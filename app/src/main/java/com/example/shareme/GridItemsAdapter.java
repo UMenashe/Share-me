@@ -15,6 +15,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class GridItemsAdapter extends ArrayAdapter<Docinfo> {
@@ -32,12 +35,24 @@ public class GridItemsAdapter extends ArrayAdapter<Docinfo> {
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        String title = String.valueOf(getItem(position).getId());
-
+        String title = String.valueOf(getItem(position).getTitle());
+        String datetime = getItem(position).getLastUpdate();
+        String date = datetime.split("T")[0];
+        LocalDate dateObj = LocalDate.parse(date);
+        LocalDate dateObj2 = LocalDate.now();
+        if(dateObj.isEqual(dateObj2)){
+            LocalDateTime datetimeObj = LocalDateTime.parse(datetime);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            datetime = datetimeObj.format(formatter);
+        }else {
+            datetime = date;
+        }
         LayoutInflater inflater = LayoutInflater.from(mContext);
         convertView = inflater.inflate(mResource, parent, false);
         TextView titleDoc = convertView.findViewById(R.id.titleDoc);
+        TextView dateDoc = convertView.findViewById(R.id.dateDoc);
         titleDoc.setText(title);
+        dateDoc.setText(datetime);
         return convertView;
     }
 

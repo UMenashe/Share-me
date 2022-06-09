@@ -147,15 +147,55 @@
                 android:textSize="16sp"/>
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/imgv"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
+        <LinearLayout
+            android:layout_width= "match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/shaperadius"
+            android:backgroundTintMode="screen"
+            android:backgroundTint="@color/white"
+            android:layout_marginVertical="10dp"
+            android:layout_marginHorizontal="20dp"
+            android:orientation="vertical"
+            android:padding="12dp">
+
+            <ImageView
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:id="@+id/expic"
+                android:layout_gravity="center"
+                android:contentDescription="share"
+                android:src="@drawable/ic_baseline_image_24"
+                tools:ignore="UseAppTint" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:id="@+id/extxt"
+                android:layout_gravity="center"
+                android:layout_margin="10dp"
+                android:text="התמונות יוצגו כאן"
+                android:textSize="16sp"/>
+
+            <ImageView
+                android:id="@+id/imgv"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:visibility="gone"
+                android:layout_gravity="left"
+                android:layout_margin="7dp"
+                />
+        </LinearLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="right"
             android:layout_margin="20dp"
-            />
+            android:text="משתתפים בפריט"
+            android:textSize="16sp"/>
+
         <ListView
             android:layout_width="match_parent"
+            android:id="@+id/lvusers"
             android:layout_height="match_parent"
             android:scrollbars="none"
             android:layout_margin="15dp"

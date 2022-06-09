@@ -49,7 +49,12 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.w3c.dom.Text;
+
 import java.io.ByteArrayOutputStream;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -65,9 +70,12 @@ Dialog addialog;
 FloatingActionButton addbtn;
 TextView alertTv;
 ListView lv;
+ListView lvusers;
 ListItemTarget lit;
 private ArrayList<ListItemTarget> listItems;
+private ArrayList<Participant> listParticipant;
 private ItemsListAdapter adap;
+private ItemsParticipantsAdp adapParticipant;
 BottomSheetDialog bottomSheetDialog,bottomSheetDetails;
 Button btnadditem;
 TextInputEditText itemname,countarget,itemnamedetails,countdetails;
@@ -212,12 +220,26 @@ StorageReference docSRef;
         btncancel = bottomSheetView.findViewById(R.id.btncancel);
         btnsave = bottomSheetView.findViewById(R.id.btnsave);
         imgV = bottomSheetView.findViewById(R.id.imgv);
+        lvusers = bottomSheetView.findViewById(R.id.lvusers);
         btncancel.setOnClickListener(this);
         btnsave.setOnClickListener(this);
         btnpic.setOnClickListener(this);
-        lit = listItems.get(0);
+        Map<String, Integer> m = lit.getCountPerUser();
+        listParticipant = new ArrayList<>();
+        Participant p1 = null;
+        for (Map.Entry<String,Integer> entry : m.entrySet()){
+            if(entry.getKey().equals(currentUser.getUid())){
+                p1 = new Participant("את/ה","","מנהל");
+            }else {
+                p1 = new Participant(entry.getKey(),"","מנהל");
+            }
+
+            listParticipant.add(p1);
+        }
         itemnamedetails.setText(lit.getName());
         countdetails.setText(String.valueOf(lit.getTargetCount()));
+        adapParticipant = new ItemsParticipantsAdp(this, R.layout.users_item, listParticipant);
+        lvusers.setAdapter(adapParticipant);
         bottomSheetDetails.setContentView(bottomSheetView);
         bottomSheetDetails.setCancelable(true);
         bottomSheetDetails.setCanceledOnTouchOutside(true);
@@ -251,6 +273,11 @@ StorageReference docSRef;
             {
                 bitmap= (Bitmap) data.getExtras().get("data");
                 imgV.setImageBitmap(bitmap);
+                ImageView expic =bottomSheetDetails.findViewById(R.id.expic);
+                TextView extxt = bottomSheetDetails.findViewById(R.id.extxt);
+                expic.setVisibility(View.GONE);
+                extxt.setVisibility(View.GONE);
+                imgV.setVisibility(View.VISIBLE);
                 StorageReference itemRef = docSRef.child(lit.getId() + "/pic.jpeg");
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
@@ -274,8 +301,25 @@ StorageReference docSRef;
 
 
     public void loadInfo(Docinfo docinfo){
+        if(docinfo == null){
+            return;
+        }
+        String datetime = docinfo.getLastUpdate();
+        String date = datetime.split("T")[0];
+        LocalDate dateObj = LocalDate.parse(date);
+        LocalDate dateObj2 = LocalDate.now();
+        if(dateObj.isEqual(dateObj2)){
+            LocalDateTime datetimeObj = LocalDateTime.parse(datetime);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+            datetime = datetimeObj.format(formatter);
+        }else {
+            datetime = date;
+        }
+
+
+
         topAppBar.setTitle(docinfo.getTitle());
-        topAppBar.setSubtitle(docinfo.getLastUpdate());
+        topAppBar.setSubtitle("עודכן לאחרונה "+datetime);
         StorageReference storageRef = storage.getReference();
         docSRef = storageRef.child(di.getId());
     }
