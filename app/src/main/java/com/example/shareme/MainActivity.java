@@ -4,13 +4,20 @@ import static android.content.ContentValues.TAG;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.app.NotificationCompat;
 
 import android.app.Dialog;
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -125,6 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             showSignUpage();
         }
 
+        testIntent();
     }
     public void showSignUpage(){
         Intent signUppage = new Intent(this,signup_page.class);
@@ -235,7 +243,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if(v == addBtn){
-            Toast.makeText(this,"addBtn pressed",Toast.LENGTH_LONG).show();
             addDoc("targetList","הרשימה החדשה שלי");
         }
         if(v == btndelete){
@@ -277,6 +284,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Intent userpage = new Intent(this,user_page.class);
             startActivity(userpage);
         }
+    }
+
+    public void testIntent(){
+        if(currentUser == null)
+            return;
+
+        int icon = R.drawable.userprofile;
+        long when = System.currentTimeMillis();
+        String title = currentUser.getDisplayName();
+        String ticker = "ticker";
+        String text= currentUser.getEmail();
+        Intent intent = new Intent(MainActivity.this, user_page.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(MainActivity.this, 0, intent, 0);
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), "M_CH_ID");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            String channelId = "YOUR_CHANNEL_ID";
+            NotificationChannel channel = new NotificationChannel(channelId,
+                    "Channel human readable title",
+                    NotificationManager.IMPORTANCE_DEFAULT);
+            notificationManager.createNotificationChannel(channel);
+            builder.setChannelId(channelId);
+        }
+        Notification notification = builder.setContentIntent(pendingIntent)
+                .setSmallIcon(icon).setTicker(ticker).setWhen(when)
+                .setAutoCancel(true).setContentTitle(title)
+                .setContentText(text).build();
+        notificationManager.notify(1, notification);
     }
 
     @Override

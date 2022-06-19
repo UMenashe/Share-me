@@ -9,6 +9,7 @@ import androidx.appcompat.widget.Toolbar;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -224,6 +225,7 @@ StorageReference docSRef;
         btncancel.setOnClickListener(this);
         btnsave.setOnClickListener(this);
         btnpic.setOnClickListener(this);
+        loadImages(docSRef.child(lit.getId() + "/pic.jpeg"));
         Map<String, Integer> m = lit.getCountPerUser();
         listParticipant = new ArrayList<>();
         Participant p1 = null;
@@ -244,6 +246,28 @@ StorageReference docSRef;
         bottomSheetDetails.setCancelable(true);
         bottomSheetDetails.setCanceledOnTouchOutside(true);
         bottomSheetDetails.show();
+    }
+
+
+    public void loadImages(StorageReference itemRef){
+        final long ONE_MEGABYTE = 1024 * 1024;
+        itemRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
+            @Override
+            public void onSuccess(byte[] bytes) {
+                Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                imgV.setImageBitmap(bm);
+                ImageView expic =bottomSheetDetails.findViewById(R.id.expic);
+                TextView extxt = bottomSheetDetails.findViewById(R.id.extxt);
+                expic.setVisibility(View.GONE);
+                extxt.setVisibility(View.GONE);
+                imgV.setVisibility(View.VISIBLE);
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                //handle the exception
+            }
+        });
     }
 
     public void createShareDialog()
@@ -332,6 +356,22 @@ StorageReference docSRef;
           bottomSheetDetails.dismiss();
       }
 
+      if(v == btnsave){
+          String nameitemtext = itemnamedetails.getText().toString();
+          String counttargettext = countdetails.getText().toString();
+          if(nameitemtext.length() == 0){
+              layoutnamedet.setError("הכנס שם");
+              return;
+          }
+          if(counttargettext.length() == 0){
+              layoutcountdet.setError("הכנס יעד");
+              return;
+          }
+          DatabaseReference item= myRef.child("Itemsofdocs").child(id).child(lit.getId());
+          onDetailsChange(item,nameitemtext, Integer.parseInt(counttargettext));
+          bottomSheetDetails.dismiss();
+      }
+
       if(v == btnpic){
           Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
           startActivityForResult(intent,0);
@@ -406,11 +446,35 @@ StorageReference docSRef;
                 return Transaction.success(mutableData);
             }
 
-            @Override
+                    @Override
             public void onComplete(DatabaseError databaseError, boolean committed,
                                    DataSnapshot currentData) {
                 // Transaction completed
                 Log.d(TAG, "postTransaction:onComplete:" + databaseError);
+            }
+        });
+    }
+
+    private void onDetailsChange(DatabaseReference postRef,String name, int count) {
+        postRef.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                ListItemTarget p = mutableData.getValue(ListItemTarget.class);
+                if (p == null) {
+                    return Transaction.success(mutableData);
+                }
+                p.setName(name);
+                p.setTargetCount(count);
+                // Set value and report transaction success
+                mutableData.setValue(p);
+                return Transaction.success(mutableData);
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean committed,
+                                   DataSnapshot currentData) {
+                // Transaction completed
+                Toast.makeText(getApplicationContext(), "השינויים נשמרו", Toast.LENGTH_SHORT).show();
             }
         });
     }

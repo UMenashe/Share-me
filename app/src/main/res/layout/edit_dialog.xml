@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/layoutemail"
-                android:hint="שם הרשימה">
+                android:hint="שם חדש">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"

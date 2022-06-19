@@ -23,6 +23,7 @@
         <entry key="..\:/Shareme/app/src/main/res/drawable/shaperadius.xml" value="0.264" />
         <entry key="..\:/Shareme/app/src/main/res/layout/activity_list_display.xml" value="0.264" />
         <entry key="..\:/Shareme/app/src/main/res/layout/activity_main.xml" value="0.25" />
+        <entry key="..\:/Shareme/app/src/main/res/layout/activity_servicebar.xml" value="0.176" />
         <entry key="..\:/Shareme/app/src/main/res/layout/activity_signup_page.xml" value="0.2" />
         <entry key="..\:/Shareme/app/src/main/res/layout/activity_user_page.xml" value="0.2" />
         <entry key="..\:/Shareme/app/src/main/res/layout/edit_dialog.xml" value="0.264" />
@@ -38,6 +39,9 @@
         <entry key="..\:/Shareme/app/src/main/res/menu/top_app_bar.xml" value="0.23854166666666668" />
       </map>
     </option>
+  </component>
+  <component name="JavadocGenerationManager">
+    <option name="OUTPUT_DIRECTORY" value="$PROJECT_DIR$/../מסמכים" />
   </component>
   <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />

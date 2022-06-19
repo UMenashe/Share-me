@@ -4,11 +4,14 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+import android.widget.VideoView;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -30,6 +33,7 @@ public class signup_page extends AppCompatActivity implements View.OnClickListen
     private GoogleSignInClient mGoogleSignInClient;
     private final static int RC_SIGN_IN = 9002;
     private FirebaseAuth mAuth;
+    VideoView vd;
 
     @Override
     protected void onStart() {
@@ -43,6 +47,7 @@ public class signup_page extends AppCompatActivity implements View.OnClickListen
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signup_page);
+        vd = findViewById(R.id.videoView);
         mAuth = FirebaseAuth.getInstance();
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -52,6 +57,16 @@ public class signup_page extends AppCompatActivity implements View.OnClickListen
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         signInButton = findViewById(R.id.sign_in_button);
         signInButton.setOnClickListener(this);
+        String path = "android.resource://" + getPackageName() + "/" + R.raw.loginanim;
+        vd.setVideoURI(Uri.parse(path));
+        vd.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.setLooping(true);
+            }
+        });
+        vd.start();
+
     }
 
     private void signIn() {
