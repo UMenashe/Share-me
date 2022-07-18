@@ -32,15 +32,18 @@ public class ItemsParticipantsAdp extends ArrayAdapter<Participant> {
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         String name = String.valueOf(getItem(position).getName());
         String role = String.valueOf(getItem(position).getRole());
+        String count = String.valueOf(getItem(position).getCount());
 
         LayoutInflater inflater = LayoutInflater.from(mContext);
         convertView = inflater.inflate(mResource, parent, false);
         TextView username = convertView.findViewById(R.id.username);
         TextView tvrole = convertView.findViewById(R.id.tvrole);
         ImageView userImage = convertView.findViewById(R.id.userImage);
+        TextView tvcount = convertView.findViewById(R.id.tvnum);
         userImage.setBackground(mContext.getResources().getDrawable(R.drawable.userprofile));
         username.setText(name);
         tvrole.setText(role);
+        tvcount.setText(count);
         return convertView;
     }
 

@@ -1,0 +1,16 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/shareimg"
+        android:icon="@drawable/ic_baseline_share_24"
+        android:title="שתף תמונה"
+        android:contentDescription="share"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/deleteimg"
+        android:icon="@drawable/ic_baseline_delete_outline_24"
+        android:title="מחק"
+        android:contentDescription="delete"
+        app:showAsAction="never" />
+</menu>

@@ -11,11 +11,14 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -121,12 +124,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mAuth = FirebaseAuth.getInstance();
         currentUser = mAuth.getCurrentUser();
         if(currentUser != null){
-            Toast.makeText(MainActivity.this, currentUser.getDisplayName(), Toast.LENGTH_SHORT).show();
             database = FirebaseDatabase.getInstance();
             myRef = database.getReference();
             String email = currentUser.getEmail().split("@")[0];
             myRef.child("usersuid").child(email).setValue(currentUser.getUid());
-            getDatabase(myRef.child("users").child(currentUser.getUid()).child("userdocs"));
             Picasso.get().load(currentUser.getPhotoUrl()).into(im);
         }else{
             showSignUpage();
@@ -325,5 +326,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
         showBottomSheet(gridItems.get(position));
         return true;
+    }
+
+    private class InternetBroadCast extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if(action.equals("android.net.conn.CONNECTIVITY_CHANGE")){
+                ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+                NetworkInfo networkInfo = cm.getActiveNetworkInfo();
+                if(networkInfo != null && networkInfo.isConnected())
+                    getDatabase(myRef.child("users").child(currentUser.getUid()).child("userdocs"));
+                else
+                    Toast.makeText(context.getApplicationContext(), "אין חיבור לאינטרנט", Toast.LENGTH_SHORT).show();
+
+            }
+
+        }
     }
 }

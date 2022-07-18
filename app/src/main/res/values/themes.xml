@@ -14,4 +14,12 @@
         <item name="android:windowNoTitle">true</item>
         <!-- Customize your theme here. -->
     </style>
+
+    <style name="SplashTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/sharemebg</item>
+        <item name="colorPrimary">#ffffff</item>
+        <item name="colorPrimaryDark">#000000</item>
+        <item name="colorAccent">#ffffff</item>
+        <item name="android:statusBarColor">#ffffff</item>
+    </style>
 </resources>

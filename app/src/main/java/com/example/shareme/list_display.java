@@ -4,16 +4,28 @@ import static android.content.ContentValues.TAG;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.view.menu.MenuBuilder;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.core.content.FileProvider;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -44,6 +56,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.MutableData;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
@@ -53,15 +66,19 @@ import com.google.firebase.storage.UploadTask;
 import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class list_display extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, Toolbar.OnMenuItemClickListener{
-MaterialToolbar topAppBar;
+MaterialToolbar topAppBar,topAppBarDialog;
 FirebaseDatabase database;
 DatabaseReference myRef;
 FirebaseAuth mAuth;
@@ -81,13 +98,14 @@ BottomSheetDialog bottomSheetDialog,bottomSheetDetails;
 Button btnadditem;
 TextInputEditText itemname,countarget,itemnamedetails,countdetails;
 TextInputLayout layoutname,layoutcount,layoutnamedet,layoutcountdet;
-Dialog shareDialog;
+Dialog shareDialog,imgDialog;
 EditText useremail;
 Button btnshare,btnsave,btncancel;
 Docinfo di;
-LinearLayout btnpic;
-Bitmap bitmap;
-ImageView imgV;
+LinearLayout btnpic,btndeleteitem;
+Bitmap bitmap,bmFromCloud;
+ImageView imgV,imageIndialog;
+CardView Cvimg;
 FirebaseStorage storage;
 StorageReference docSRef;
 
@@ -162,6 +180,11 @@ StorageReference docSRef;
         Itemsofdocs.addValueEventListener(itemsListener);
     }
 
+    public void lastUpdateDoc(){
+        String timeObj = String.valueOf(LocalDateTime.now());
+        myRef.child("allDocs").child(id).child("lastUpdate").setValue(timeObj);
+    }
+
     private void loadItems() {
         if(listItems.isEmpty()){
             alertTv.setText("אין פריטים ברשימה");
@@ -182,6 +205,7 @@ StorageReference docSRef;
         ListItemTarget li = new ListItemTarget(name,Integer.parseInt(targetCount),itemRef.getKey(),m);
         listItems.add(li);
         itemRef.setValue(li);
+        lastUpdateDoc();
         loadItems();
     }
 
@@ -221,19 +245,23 @@ StorageReference docSRef;
         btncancel = bottomSheetView.findViewById(R.id.btncancel);
         btnsave = bottomSheetView.findViewById(R.id.btnsave);
         imgV = bottomSheetView.findViewById(R.id.imgv);
+        Cvimg = bottomSheetView.findViewById(R.id.cvimg);
         lvusers = bottomSheetView.findViewById(R.id.lvusers);
+        btndeleteitem = bottomSheetView.findViewById(R.id.btndeleteitem);
         btncancel.setOnClickListener(this);
         btnsave.setOnClickListener(this);
         btnpic.setOnClickListener(this);
+        btndeleteitem.setOnClickListener(this);
+        imgV.setOnClickListener(this);
         loadImages(docSRef.child(lit.getId() + "/pic.jpeg"));
         Map<String, Integer> m = lit.getCountPerUser();
         listParticipant = new ArrayList<>();
         Participant p1 = null;
         for (Map.Entry<String,Integer> entry : m.entrySet()){
             if(entry.getKey().equals(currentUser.getUid())){
-                p1 = new Participant("את/ה","","מנהל");
+                p1 = new Participant("את/ה","","מנהל",entry.getValue());
             }else {
-                p1 = new Participant(entry.getKey(),"","מנהל");
+                p1 = new Participant(entry.getKey(),"","מנהל",entry.getValue());
             }
 
             listParticipant.add(p1);
@@ -254,13 +282,13 @@ StorageReference docSRef;
         itemRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
             public void onSuccess(byte[] bytes) {
-                Bitmap bm = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                imgV.setImageBitmap(bm);
+                bmFromCloud = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                imgV.setImageBitmap(bmFromCloud);
                 ImageView expic =bottomSheetDetails.findViewById(R.id.expic);
                 TextView extxt = bottomSheetDetails.findViewById(R.id.extxt);
                 expic.setVisibility(View.GONE);
                 extxt.setVisibility(View.GONE);
-                imgV.setVisibility(View.VISIBLE);
+                Cvimg.setVisibility(View.VISIBLE);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -281,6 +309,27 @@ StorageReference docSRef;
         btnshare = shareDialog.findViewById(R.id.btnshare);
         btnshare.setOnClickListener(this);
         shareDialog.show();
+    }
+
+    public void createFullDialog(Bitmap bm)
+    {
+        imgDialog= new Dialog(this,android.R.style.ThemeOverlay_Material);
+        imgDialog.setContentView(R.layout.imgdisplay_dialog);
+        Window window = imgDialog.getWindow();
+        window.setLayout(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
+        imgDialog.setCancelable(true);
+        imageIndialog = imgDialog.findViewById(R.id.imageindialog);
+        topAppBarDialog = imgDialog.findViewById(R.id.topAppBarDialog);
+        topAppBarDialog.setTitle(lit.getName());
+        topAppBarDialog.setOnMenuItemClickListener(this);
+        topAppBarDialog.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imgDialog.dismiss();
+            }
+        });
+        imageIndialog.setImageBitmap(bm);
+        imgDialog.show();
     }
 
     @Override
@@ -320,6 +369,14 @@ StorageReference docSRef;
 
             }
         }
+    }
+
+    public String buildTxtCopy(){
+        String txtcopy = di.getTitle() + "\n";
+        for(int i = 0 ;i < listItems.size();i++){
+            txtcopy += listItems.get(i).itemToCopyTxt() + "\n \n";
+        }
+        return txtcopy;
     }
 
 
@@ -375,6 +432,19 @@ StorageReference docSRef;
       if(v == btnpic){
           Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
           startActivityForResult(intent,0);
+      }
+
+      if(v == imgV){
+          Bitmap bitm = bitmap != null ? bitmap : bmFromCloud;
+          createFullDialog(bitm);
+      }
+
+      if(v == btndeleteitem){
+          DatabaseReference item= myRef.child("Itemsofdocs").child(id).child(lit.getId());
+          listItems.remove(lit);
+          item.removeValue();
+          lastUpdateDoc();
+          bottomSheetDetails.dismiss();
       }
       if(v == btnadditem){
           String nameitemtext = itemname.getText().toString();
@@ -434,7 +504,6 @@ StorageReference docSRef;
                     p.addCount();
                     m1.put(currentUser.getUid(), m1.get(currentUser.getUid()) + 1);
                 }
-
                 if(type.equals("minus") && !p.checkUserCount(currentUser.getUid())){
                     p.subtractCount();
                     m1.put(currentUser.getUid(), m1.get(currentUser.getUid()) - 1);
@@ -479,6 +548,34 @@ StorageReference docSRef;
         });
     }
 
+    public void shareImage(){
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/jpeg");
+        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+        bmFromCloud.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
+        File f = new File(Environment.getExternalStorageDirectory() + File.separator + "temporary_file.jpeg");
+        try {
+            f.createNewFile();
+            FileOutputStream fo = new FileOutputStream(f);
+            fo.write(bytes.toByteArray());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Uri imageUri = FileProvider.getUriForFile(
+                getApplicationContext(),
+                BuildConfig.APPLICATION_ID+".provider",f);
+        share.putExtra(Intent.EXTRA_STREAM,imageUri);
+        Intent chooser = Intent.createChooser(share, "Share File");
+        List<ResolveInfo> resInfoList = this.getPackageManager().queryIntentActivities(chooser, PackageManager.MATCH_DEFAULT_ONLY);
+
+        for (ResolveInfo resolveInfo : resInfoList) {
+            String packageName = resolveInfo.activityInfo.packageName;
+            this.grantUriPermission(packageName, imageUri, Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
+
+        startActivity(chooser);
+    }
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         long viewId = view.getId();
@@ -505,6 +602,34 @@ StorageReference docSRef;
         if(item.getItemId() == R.id.share){
             createShareDialog();
         }
+
+        if(item.getItemId() == R.id.send_text){
+            Intent copyintent = new Intent(getApplicationContext(),share_copy.class);
+            copyintent.putExtra("txtcopy",buildTxtCopy());
+            startActivity(copyintent);
+        }
+
+        if(item.getItemId() == R.id.shareimg){
+            Toast.makeText(getApplicationContext(),"share img", Toast.LENGTH_SHORT).show();
+            shareImage();
+        }
+
+        if(item.getItemId() == R.id.deleteimg){
+            docSRef.child(lit.getId() + "/pic.jpeg").delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(getApplicationContext(),"המחיקה הושלמה", Toast.LENGTH_SHORT).show();
+                    imgV.setVisibility(View.INVISIBLE);
+                    imgDialog.dismiss();
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    Toast.makeText(getApplicationContext(),"אופס, המחיקה נכשלה", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+
         return false;
     }
 }

@@ -85,4 +85,26 @@ public class ListItemTarget {
     public boolean checkUserCount(String uid){
         return this.countPerUser.get(uid) == 0;
     }
+
+    public String itemToCopyTxt(){
+        String txt = "";
+
+        txt = txt + "● " + this.name +"- " + " " + "יעד" + ":" + this.targetCount + " " + " | " + "כמות" +":"+this.currentCount + "\n" + "משתתפים בפריט";
+        for (Map.Entry<String,Integer> entry : this.countPerUser.entrySet()){
+            txt = txt + "\n" + "- " + entry.getKey() + ":" + entry.getValue();
+        }
+        return txt;
+    }
+
+    @Override
+    public String toString() {
+        return "ListItemTarget{" +
+                "name='" + name + '\'' +
+                ", targetCount=" + targetCount +
+                ", currentCount=" + currentCount +
+                ", id='" + id + '\'' +
+                ", isComplete=" + isComplete +
+                ", countPerUser=" + countPerUser +
+                '}';
+    }
 }
