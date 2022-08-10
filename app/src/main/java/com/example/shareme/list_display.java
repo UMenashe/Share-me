@@ -108,6 +108,7 @@ ImageView imgV,imageIndialog;
 CardView Cvimg;
 FirebaseStorage storage;
 StorageReference docSRef;
+static Map<String, String> namesmap = new HashMap<>();
 
 
     @Override
@@ -253,17 +254,13 @@ StorageReference docSRef;
         btnpic.setOnClickListener(this);
         btndeleteitem.setOnClickListener(this);
         imgV.setOnClickListener(this);
-        loadImages(docSRef.child(lit.getId() + "/pic.jpeg"));
+//        loadImages(docSRef.child(lit.getId() + "/pic.jpeg"));
         Map<String, Integer> m = lit.getCountPerUser();
         listParticipant = new ArrayList<>();
         Participant p1 = null;
-        for (Map.Entry<String,Integer> entry : m.entrySet()){
-            if(entry.getKey().equals(currentUser.getUid())){
-                p1 = new Participant("את/ה","","מנהל",entry.getValue());
-            }else {
-                p1 = new Participant(entry.getKey(),"","מנהל",entry.getValue());
-            }
-
+        Map<String, Integer> m2 = buildNamesList(m);
+        for (Map.Entry<String,Integer> entry : m2.entrySet()){
+            p1 = new Participant(entry.getKey(),"","מנהל",entry.getValue());
             listParticipant.add(p1);
         }
         itemnamedetails.setText(lit.getName());
@@ -274,6 +271,31 @@ StorageReference docSRef;
         bottomSheetDetails.setCancelable(true);
         bottomSheetDetails.setCanceledOnTouchOutside(true);
         bottomSheetDetails.show();
+    }
+
+    public void loadNamesList(){
+        DatabaseReference namesRef =  myRef.child("usernames");
+        namesRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                    Toast.makeText(getApplicationContext(),"test", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"test work", Toast.LENGTH_LONG).show();
+                     namesmap = (HashMap) task.getResult().getValue();
+                }
+            }
+        });
+    }
+
+    public Map<String,Integer> buildNamesList(Map<String, Integer> listuid){
+        Map<String, Integer> namesList = new HashMap<>();
+        for (Map.Entry<String,Integer> entry : listuid.entrySet()){
+            namesList.put(namesmap.get(entry.getKey()),entry.getValue());
+        }
+        return namesList;
     }
 
 
@@ -374,7 +396,7 @@ StorageReference docSRef;
     public String buildTxtCopy(){
         String txtcopy = di.getTitle() + "\n";
         for(int i = 0 ;i < listItems.size();i++){
-            txtcopy += listItems.get(i).itemToCopyTxt() + "\n \n";
+            txtcopy += listItems.get(i).itemToCopyTxt(namesmap) + "\n \n";
         }
         return txtcopy;
     }
@@ -403,6 +425,7 @@ StorageReference docSRef;
         topAppBar.setSubtitle("עודכן לאחרונה "+datetime);
         StorageReference storageRef = storage.getReference();
         docSRef = storageRef.child(di.getId());
+        loadNamesList();
     }
     @Override
     public void onClick(View v) {

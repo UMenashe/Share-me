@@ -128,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             myRef = database.getReference();
             String email = currentUser.getEmail().split("@")[0];
             myRef.child("usersuid").child(email).setValue(currentUser.getUid());
+            myRef.child("usernames").child(currentUser.getUid()).setValue(currentUser.getDisplayName());
             Picasso.get().load(currentUser.getPhotoUrl()).into(im);
         }else{
             showSignUpage();
