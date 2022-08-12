@@ -88,8 +88,8 @@ public class ListItemTarget {
 
     public String itemToCopyTxt(Map<String,String> names){
         String txt = "";
-
-        txt = txt + "● " + this.name +"- " + " " + "יעד" + ":" + this.targetCount + " " + " | " + "כמות" +":"+this.currentCount + "\n" + "משתתפים בפריט";
+        String s = isTargetComplete() ? "✔ " : "🔘 ";
+        txt = txt + s + this.name +"- " + " " + "יעד" + ":" + this.targetCount + " " + " | " + "כמות" +":"+this.currentCount + "\n" + "משתתפים בפריט";
         for (Map.Entry<String,Integer> entry : this.countPerUser.entrySet()){
             txt = txt + "\n" + "- " + names.get(entry.getKey()) + ":" + entry.getValue();
         }

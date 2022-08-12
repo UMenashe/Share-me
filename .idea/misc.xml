@@ -31,13 +31,15 @@
         <entry key="..\:/Shareme/app/src/main/res/layout/activity_signup_page.xml" value="0.2" />
         <entry key="..\:/Shareme/app/src/main/res/layout/activity_splash_screen.xml" value="0.10925925925925926" />
         <entry key="..\:/Shareme/app/src/main/res/layout/activity_user_page.xml" value="0.2" />
+        <entry key="..\:/Shareme/app/src/main/res/layout/activity_view_pending.xml" value="0.1634963768115942" />
         <entry key="..\:/Shareme/app/src/main/res/layout/edit_dialog.xml" value="0.264" />
         <entry key="..\:/Shareme/app/src/main/res/layout/imgdisplay_dialog.xml" value="0.17572463768115942" />
         <entry key="..\:/Shareme/app/src/main/res/layout/layout_bottom_additem.xml" value="0.264" />
         <entry key="..\:/Shareme/app/src/main/res/layout/layout_bottom_sheet_action.xml" value="0.264" />
         <entry key="..\:/Shareme/app/src/main/res/layout/layout_choose_type.xml" value="0.24728260869565216" />
         <entry key="..\:/Shareme/app/src/main/res/layout/list_item.xml" value="0.264" />
-        <entry key="..\:/Shareme/app/src/main/res/layout/list_item_details.xml" value="0.2" />
+        <entry key="..\:/Shareme/app/src/main/res/layout/list_item_details.xml" value="0.476027397260274" />
+        <entry key="..\:/Shareme/app/src/main/res/layout/list_pending_item.xml" value="0.264" />
         <entry key="..\:/Shareme/app/src/main/res/layout/row_item.xml" value="0.264" />
         <entry key="..\:/Shareme/app/src/main/res/layout/sample_app_bar_return.xml" value="0.23822463768115942" />
         <entry key="..\:/Shareme/app/src/main/res/layout/share_dialog.xml" value="0.2" />

@@ -36,7 +36,7 @@ public class GridItemsAdapter extends ArrayAdapter<Docinfo> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         String title = String.valueOf(getItem(position).getTitle());
-        String datetime = getItem(position).getLastUpdate();
+        String datetime = getItem(position).getCreateTime();
         String date = datetime.split("T")[0];
         LocalDate dateObj = LocalDate.parse(date);
         LocalDate dateObj2 = LocalDate.now();

@@ -4,17 +4,21 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".share_copy">
+    tools:context=".view_pending">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="center"
         android:orientation="vertical">
-        <TextView
-            android:id="@+id/tvcopy"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="TextView" />
-    </LinearLayout>
 
+        <ListView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="10dp"
+            android:layout_marginVertical="70dp"
+            android:dividerHeight="10.0sp"
+            android:divider="@android:color/transparent"
+            android:id="@+id/lvpending"
+            />
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

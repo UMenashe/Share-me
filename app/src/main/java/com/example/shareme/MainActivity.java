@@ -2,6 +2,7 @@ package com.example.shareme;
 
 import static android.content.ContentValues.TAG;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.core.app.NotificationCompat;
@@ -39,6 +40,8 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetDialog;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,6 +58,7 @@ import com.squareup.picasso.Picasso;
 import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     ImageView im;
@@ -134,7 +138,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             showSignUpage();
         }
 
-        testIntent();
+//        testIntent();
     }
     public void showSignUpage(){
         Intent signUppage = new Intent(this,signup_page.class);
@@ -164,6 +168,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
         myRef.addValueEventListener(postListener);
+    }
+
+    public void getPending(){
+        DatabaseReference pendingRef =  myRef.child("users").child(currentUser.getUid()).child("pending");
+        pendingRef.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (task.getResult().exists()) {
+                    Toast.makeText(getApplicationContext(),"pending available", Toast.LENGTH_LONG).show();
+                }
+                else {
+                    Toast.makeText(getApplicationContext(),"you dont have pending", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
 
@@ -336,9 +355,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(action.equals("android.net.conn.CONNECTIVITY_CHANGE")){
                 ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = cm.getActiveNetworkInfo();
-                if(networkInfo != null && networkInfo.isConnected())
+                if(networkInfo != null && networkInfo.isConnected()){
                     getDatabase(myRef.child("users").child(currentUser.getUid()).child("userdocs"));
-                else
+                    getPending();
+                } else
                     Toast.makeText(context.getApplicationContext(), "אין חיבור לאינטרנט", Toast.LENGTH_SHORT).show();
 
             }

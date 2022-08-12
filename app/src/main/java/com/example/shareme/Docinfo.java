@@ -10,7 +10,7 @@ public class Docinfo {
     private String lastUpdate;
     private String title;
     private String owner;
-    private Map<String, Boolean> participants;
+    private Map<String, String> participants;
 
     public Docinfo() { }
     public Docinfo(String type, String id, String createTime, String lastUpdate, String title, String owner) {
@@ -21,14 +21,14 @@ public class Docinfo {
         this.title = title;
         this.owner = owner;
         this.participants = new HashMap<>();
-        this.participants.put(owner,true);
+        this.participants.put(owner,"owner");
     }
 
-    public Map<String, Boolean> getParticipants() {
+    public Map<String, String> getParticipants() {
         return participants;
     }
 
-    public void setParticipants(Map<String, Boolean> participants) {
+    public void setParticipants(Map<String, String> participants) {
         this.participants = participants;
     }
 

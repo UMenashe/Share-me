@@ -200,8 +200,8 @@ static Map<String, String> namesmap = new HashMap<>();
     public void addItemTolist(String name,String targetCount){
         DatabaseReference itemRef = myRef.child("Itemsofdocs").child(id).push();
         Map<String, Integer> m = new HashMap<>();
-        Map<String,Boolean> p = di.getParticipants();
-        for (Map.Entry<String,Boolean> entry : p.entrySet())
+        Map<String,String> p = di.getParticipants();
+        for (Map.Entry<String,String> entry : p.entrySet())
             m.put(entry.getKey(),0);
         ListItemTarget li = new ListItemTarget(name,Integer.parseInt(targetCount),itemRef.getKey(),m);
         listItems.add(li);
@@ -254,13 +254,15 @@ static Map<String, String> namesmap = new HashMap<>();
         btnpic.setOnClickListener(this);
         btndeleteitem.setOnClickListener(this);
         imgV.setOnClickListener(this);
-//        loadImages(docSRef.child(lit.getId() + "/pic.jpeg"));
+        loadImages(docSRef.child(lit.getId() + "/pic.jpeg"));
         Map<String, Integer> m = lit.getCountPerUser();
         listParticipant = new ArrayList<>();
         Participant p1 = null;
+        String rolestr = "";
         Map<String, Integer> m2 = buildNamesList(m);
         for (Map.Entry<String,Integer> entry : m2.entrySet()){
-            p1 = new Participant(entry.getKey(),"","מנהל",entry.getValue());
+            rolestr =  namesmap.get(di.getOwner()) == entry.getKey() ? "מנהל":"עורך";
+            p1 = new Participant(entry.getKey(),"",rolestr,entry.getValue());
             listParticipant.add(p1);
         }
         itemnamedetails.setText(lit.getName());
@@ -280,10 +282,8 @@ static Map<String, String> namesmap = new HashMap<>();
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (!task.isSuccessful()) {
                     Log.e("firebase", "Error getting data", task.getException());
-                    Toast.makeText(getApplicationContext(),"test", Toast.LENGTH_LONG).show();
                 }
                 else {
-                    Toast.makeText(getApplicationContext(),"test work", Toast.LENGTH_LONG).show();
                      namesmap = (HashMap) task.getResult().getValue();
                 }
             }
@@ -301,23 +301,24 @@ static Map<String, String> namesmap = new HashMap<>();
 
     public void loadImages(StorageReference itemRef){
         final long ONE_MEGABYTE = 1024 * 1024;
+        try{
         itemRef.getBytes(ONE_MEGABYTE).addOnSuccessListener(new OnSuccessListener<byte[]>() {
             @Override
             public void onSuccess(byte[] bytes) {
                 bmFromCloud = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
                 imgV.setImageBitmap(bmFromCloud);
-                ImageView expic =bottomSheetDetails.findViewById(R.id.expic);
                 TextView extxt = bottomSheetDetails.findViewById(R.id.extxt);
-                expic.setVisibility(View.GONE);
                 extxt.setVisibility(View.GONE);
                 Cvimg.setVisibility(View.VISIBLE);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                //handle the exception
+                Log.d("imageFailure",exception.getMessage());
             }
         });
+        } catch (Exception e){
+        }
     }
 
     public void createShareDialog()
@@ -368,9 +369,7 @@ static Map<String, String> namesmap = new HashMap<>();
             {
                 bitmap= (Bitmap) data.getExtras().get("data");
                 imgV.setImageBitmap(bitmap);
-                ImageView expic =bottomSheetDetails.findViewById(R.id.expic);
                 TextView extxt = bottomSheetDetails.findViewById(R.id.extxt);
-                expic.setVisibility(View.GONE);
                 extxt.setVisibility(View.GONE);
                 imgV.setVisibility(View.VISIBLE);
                 StorageReference itemRef = docSRef.child(lit.getId() + "/pic.jpeg");
@@ -502,10 +501,11 @@ static Map<String, String> namesmap = new HashMap<>();
                       useremail.requestFocus();
                   }
                   else {
-                      DatabaseReference userRef =  myRef.child("users").child((String) task.getResult().getValue()).child("userdocs").child(id);
-                      DatabaseReference allDRef =  myRef.child("allDocs").child(id).child("participants").child(finalEmailstr);
+                      String struser = (String) task.getResult().getValue();
+                      DatabaseReference userRef =  myRef.child("users").child(struser).child("pending").child(id);
+                      DatabaseReference allDRef =  myRef.child("allDocs").child(id).child("participants").child(struser);
                       userRef.setValue(di);
-                      allDRef.setValue(true);
+                      allDRef.setValue("editor");
                       Toast.makeText(getApplicationContext(),"share success",Toast.LENGTH_LONG).show();
                   }
               }
@@ -523,9 +523,15 @@ static Map<String, String> namesmap = new HashMap<>();
                     return Transaction.success(mutableData);
                 }
                 Map<String, Integer> m1 = p.getCountPerUser();
+
+                if(m1.get(currentUser.getUid()) == null){
+                    m1.put(currentUser.getUid(),0);
+                    p.setCountPerUser(m1);
+                }
+
                 if(type.equals("plus") && !p.isTargetComplete()){
                     p.addCount();
-                    m1.put(currentUser.getUid(), m1.get(currentUser.getUid()) + 1);
+                    m1.put(currentUser.getUid(), m1.get(currentUser.getUid())  + 1);
                 }
                 if(type.equals("minus") && !p.checkUserCount(currentUser.getUid())){
                     p.subtractCount();
@@ -569,6 +575,15 @@ static Map<String, String> namesmap = new HashMap<>();
                 Toast.makeText(getApplicationContext(), "השינויים נשמרו", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    public void shareText(String txt){
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, txt);
+        sendIntent.setType("text/plain");
+        Intent shareIntent = Intent.createChooser(sendIntent, null);
+        startActivity(shareIntent);
     }
 
     public void shareImage(){
@@ -627,9 +642,7 @@ static Map<String, String> namesmap = new HashMap<>();
         }
 
         if(item.getItemId() == R.id.send_text){
-            Intent copyintent = new Intent(getApplicationContext(),share_copy.class);
-            copyintent.putExtra("txtcopy",buildTxtCopy());
-            startActivity(copyintent);
+            shareText(buildTxtCopy());
         }
 
         if(item.getItemId() == R.id.shareimg){
