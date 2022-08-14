@@ -18,11 +18,15 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -35,6 +39,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,6 +70,8 @@ import com.google.firebase.storage.UploadTask;
 
 import org.w3c.dom.Text;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -86,7 +93,7 @@ FirebaseUser currentUser;
 String id ,owner;
 Dialog addialog;
 FloatingActionButton addbtn;
-TextView alertTv;
+TextView alertTv,extxt;
 ListView lv;
 ListView lvusers;
 ListItemTarget lit;
@@ -109,6 +116,10 @@ CardView Cvimg;
 FirebaseStorage storage;
 StorageReference docSRef;
 static Map<String, String> namesmap = new HashMap<>();
+private final int PICK_IMAGE_REQUEST = 22;
+private Uri filePath;
+ProgressBar pb;
+
 
 
     @Override
@@ -122,6 +133,9 @@ static Map<String, String> namesmap = new HashMap<>();
         addbtn = findViewById(R.id.addbtn);
         alertTv = findViewById(R.id.alert);
         lv = findViewById(R.id.lvitems);
+        pb = findViewById(R.id.pb);
+        pb.setVisibility(View.VISIBLE);
+        alertTv.setVisibility(View.INVISIBLE);
         addbtn.setOnClickListener(this);
         lv.setOnItemClickListener(this);
         topAppBar.setOnMenuItemClickListener(this);
@@ -187,15 +201,13 @@ static Map<String, String> namesmap = new HashMap<>();
     }
 
     private void loadItems() {
-        if(listItems.isEmpty()){
-            alertTv.setText("אין פריטים ברשימה");
-            alertTv.setVisibility(View.VISIBLE);
-            return;
-        }else{
-            alertTv.setVisibility(View.GONE);
-        }
         adap = new ItemsListAdapter(this, R.layout.list_item, listItems);
         lv.setAdapter(adap);
+        pb.setVisibility(View.GONE);
+        if(listItems.isEmpty())
+            alertTv.setVisibility(View.VISIBLE);
+        else
+            alertTv.setVisibility(View.GONE);
     }
     public void addItemTolist(String name,String targetCount){
         DatabaseReference itemRef = myRef.child("Itemsofdocs").child(id).push();
@@ -247,6 +259,7 @@ static Map<String, String> namesmap = new HashMap<>();
         btnsave = bottomSheetView.findViewById(R.id.btnsave);
         imgV = bottomSheetView.findViewById(R.id.imgv);
         Cvimg = bottomSheetView.findViewById(R.id.cvimg);
+        extxt  = bottomSheetView.findViewById(R.id.extxt);
         lvusers = bottomSheetView.findViewById(R.id.lvusers);
         btndeleteitem = bottomSheetView.findViewById(R.id.btndeleteitem);
         btncancel.setOnClickListener(this);
@@ -306,8 +319,13 @@ static Map<String, String> namesmap = new HashMap<>();
             @Override
             public void onSuccess(byte[] bytes) {
                 bmFromCloud = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                imgV.setImageBitmap(bmFromCloud);
-                TextView extxt = bottomSheetDetails.findViewById(R.id.extxt);
+                    final Bitmap scaledBitmap = Bitmap.createScaledBitmap(
+                            bmFromCloud,
+                            (int) (bmFromCloud.getWidth() * 0.1),
+                            (int) (bmFromCloud.getHeight() * 0.1),
+                            true
+                    );
+                    imgV.setImageBitmap(scaledBitmap);
                 extxt.setVisibility(View.GONE);
                 Cvimg.setVisibility(View.VISIBLE);
             }
@@ -351,6 +369,7 @@ static Map<String, String> namesmap = new HashMap<>();
                 imgDialog.dismiss();
             }
         });
+
         imageIndialog.setImageBitmap(bm);
         imgDialog.show();
     }
@@ -361,33 +380,54 @@ static Map<String, String> namesmap = new HashMap<>();
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if(requestCode==0)
+        if (requestCode == PICK_IMAGE_REQUEST
+                && resultCode == RESULT_OK
+                && data != null
+                && data.getData() != null) {
 
-        {
-            if(resultCode==RESULT_OK)
+            // Get the Uri of data
+            filePath = data.getData();
+            try {
 
-            {
-                bitmap= (Bitmap) data.getExtras().get("data");
-                imgV.setImageBitmap(bitmap);
-                TextView extxt = bottomSheetDetails.findViewById(R.id.extxt);
+                // Setting image on image view using Bitmap
+                Bitmap bitmap = MediaStore
+                        .Images
+                        .Media
+                        .getBitmap(getContentResolver(), filePath);
+                    final Bitmap scaledBitmap = Bitmap.createScaledBitmap(
+                            bitmap,
+                            (int) (bitmap.getWidth() * 0.1),
+                            (int) (bitmap.getHeight() * 0.1),
+                            true
+                    );
+                    Matrix matrix = new Matrix();
+                    matrix.postRotate(90);
+                    Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+                    imgV.setImageBitmap(rotatedBitmap);
+                ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 25 , bos);
+                byte[] bitmapdata = bos.toByteArray();
                 extxt.setVisibility(View.GONE);
-                imgV.setVisibility(View.VISIBLE);
+                Cvimg.setVisibility(View.VISIBLE);
                 StorageReference itemRef = docSRef.child(lit.getId() + "/pic.jpeg");
-                ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
-                byte[] byteArray = stream.toByteArray();
-                UploadTask uploadTask = itemRef.putBytes(byteArray);
+                UploadTask  uploadTask = itemRef.putBytes(bitmapdata);
                 uploadTask.addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception exception) {
+                        // Handle unsuccessful uploads
                     }
                 }).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                        bitmap.recycle();
+                        // taskSnapshot.getMetadata() contains file metadata such as size, content-type, etc.
+                        // ...
                     }
                 });
+            }
 
+            catch (IOException e) {
+                // Log the exception
+                e.printStackTrace();
             }
         }
     }
@@ -446,14 +486,24 @@ static Map<String, String> namesmap = new HashMap<>();
               layoutcountdet.setError("הכנס יעד");
               return;
           }
+
+          if(Integer.parseInt(counttargettext) < lit.getTargetCount()){
+              layoutcountdet.setError("לא ניתן להנמיך את היעד");
+              return;
+          }
           DatabaseReference item= myRef.child("Itemsofdocs").child(id).child(lit.getId());
           onDetailsChange(item,nameitemtext, Integer.parseInt(counttargettext));
           bottomSheetDetails.dismiss();
       }
 
       if(v == btnpic){
-          Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-          startActivityForResult(intent,0);
+          Intent intent = new Intent();
+          intent.setType("image/*");
+          intent.setAction(Intent.ACTION_GET_CONTENT);
+          startActivityForResult(
+                  Intent.createChooser(
+                          intent,
+                          "Select Image from here..."), PICK_IMAGE_REQUEST);
       }
 
       if(v == imgV){
@@ -592,6 +642,13 @@ static Map<String, String> namesmap = new HashMap<>();
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         bmFromCloud.compress(Bitmap.CompressFormat.JPEG, 100, bytes);
         File f = new File(Environment.getExternalStorageDirectory() + File.separator + "temporary_file.jpeg");
+        if (Build.VERSION.SDK_INT >= 30){
+            if (!Environment.isExternalStorageManager()){
+                Intent getpermission = new Intent();
+                getpermission.setAction(Settings.ACTION_MANAGE_ALL_FILES_ACCESS_PERMISSION);
+                startActivity(getpermission);
+            }
+        }
         try {
             f.createNewFile();
             FileOutputStream fo = new FileOutputStream(f);
@@ -655,7 +712,8 @@ static Map<String, String> namesmap = new HashMap<>();
                 @Override
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(getApplicationContext(),"המחיקה הושלמה", Toast.LENGTH_SHORT).show();
-                    imgV.setVisibility(View.INVISIBLE);
+                    Cvimg.setVisibility(View.INVISIBLE);
+                    extxt.setVisibility(View.VISIBLE);
                     imgDialog.dismiss();
                 }
             }).addOnFailureListener(new OnFailureListener() {

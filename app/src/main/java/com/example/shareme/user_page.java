@@ -29,7 +29,7 @@ public class user_page extends AppCompatActivity implements View.OnClickListener
     FirebaseUser currentUser;
     TextView username,useremail;
     ImageView userImage;
-    LinearLayout btnedit,btnlogout;
+    LinearLayout btnedit,btnlogout,btnviewpending;
     Dialog editDialog;
     EditText listName;
     Button btnfinish;
@@ -47,9 +47,11 @@ public class user_page extends AppCompatActivity implements View.OnClickListener
         useremail = findViewById(R.id.useremail);
         userImage = findViewById(R.id.userImage);
         btnlogout = findViewById(R.id.btnlogout);
+        btnviewpending = findViewById(R.id.btnviewpending);
         btnedit = findViewById(R.id.btnedit);
         btnedit.setOnClickListener(this);
         btnlogout.setOnClickListener(this);
+        btnviewpending.setOnClickListener(this);
         username.setText(currentUser.getDisplayName());
         useremail.setText(currentUser.getEmail());
         Picasso.get().load(currentUser.getPhotoUrl()).into(userImage);
@@ -83,6 +85,12 @@ public class user_page extends AppCompatActivity implements View.OnClickListener
             Intent intent = new Intent(this, signup_page.class);
             startActivity(intent);
         }
+
+        if(v == btnviewpending){
+            Intent pendingintent = new Intent(this,view_pending.class);
+            startActivity(pendingintent);
+        }
+
         if(v == btnfinish){
             String namestr = listName.getText().toString();
             if(namestr.length() == 0){

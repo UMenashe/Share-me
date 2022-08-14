@@ -5,23 +5,31 @@
     android:layout_height="80dp"
     android:orientation="horizontal"
     android:layoutDirection="rtl"
-    android:backgroundTint="@color/gray_400"
-    android:background="@drawable/shaperadius">
+    android:background="@drawable/shaperadius"
+    android:backgroundTint="@color/white">
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
+        android:layout_weight="2"
         android:layout_marginHorizontal="18dp"
-        android:orientation="horizontal">
+        android:gravity="center"
+        android:orientation="vertical">
         <TextView
             android:id="@+id/textreq"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
+            android:layout_gravity="right"
             android:text="שם של פריט"
-            android:textSize="17dp"
+            android:textSize="16dp"
             android:textStyle="bold" />
+        <TextView
+            android:id="@+id/textowner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="בעלים:"
+            android:textSize="15dp"/>
     </LinearLayout>
 
 
@@ -32,23 +40,27 @@
         android:layoutDirection="ltr"
         android:layout_weight="1"
         android:orientation="horizontal">
-        <Button
-            android:id="@+id/btnconfirm"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginHorizontal="20dp"
-            android:clickable="true"
-            android:text="קבל" />
 
         <Button
-            android:id="@+id/btnreject"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginHorizontal="20dp"
+            android:id="@+id/btnconfirm"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
             android:clickable="true"
-            android:text="דחה" />
+            android:layout_gravity="center"
+            android:layout_marginHorizontal="30dp"
+            android:background="@drawable/ic_outline_check_circle_outline_24"
+            app:backgroundTint="#43A047"
+            android:text="" />
+        <Button
+            android:id="@+id/btnreject"
+            android:layout_width="35dp"
+            android:layout_height="35dp"
+            android:clickable="true"
+            android:layout_margin="5dp"
+            android:layout_gravity="center"
+            app:backgroundTint="#E53935"
+            android:background="@drawable/ic_outline_cancel_24"
+            android:text="" />
 
     </LinearLayout>
 

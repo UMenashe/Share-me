@@ -28,10 +28,12 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
@@ -81,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Dialog editDialog;
     EditText listName,editsearch;
     Button btnfinish;
+    FrameLayout mainlayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         im = findViewById(R.id.userImage);
         alert2 = findViewById(R.id.alert2);
         viewprofile = findViewById(R.id.viewprofile);
+        mainlayout = findViewById(R.id.mainlayout);
         alert2.setVisibility(View.INVISIBLE);
         pb = findViewById(R.id.pb);
         pb.setVisibility(View.VISIBLE);
@@ -176,10 +180,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (task.getResult().exists()) {
-                    Toast.makeText(getApplicationContext(),"pending available", Toast.LENGTH_LONG).show();
-                }
-                else {
-                    Toast.makeText(getApplicationContext(),"you dont have pending", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(),"ממתינות לך בקשות חדשות", Toast.LENGTH_LONG).show();
                 }
             }
         });
