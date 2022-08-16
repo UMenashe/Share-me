@@ -110,7 +110,7 @@ EditText useremail;
 Button btnshare,btnsave,btncancel;
 Docinfo di;
 LinearLayout btnpic,btndeleteitem;
-Bitmap bitmap,bmFromCloud;
+static Bitmap rotatedBitmap,bmFromCloud;
 ImageView imgV,imageIndialog;
 CardView Cvimg;
 FirebaseStorage storage;
@@ -402,7 +402,7 @@ ProgressBar pb;
                     );
                     Matrix matrix = new Matrix();
                     matrix.postRotate(90);
-                    Bitmap rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
+                    rotatedBitmap = Bitmap.createBitmap(scaledBitmap, 0, 0, scaledBitmap.getWidth(), scaledBitmap.getHeight(), matrix, true);
                     imgV.setImageBitmap(rotatedBitmap);
                 ByteArrayOutputStream bos = new ByteArrayOutputStream();
                 rotatedBitmap.compress(Bitmap.CompressFormat.JPEG, 25 , bos);
@@ -507,7 +507,7 @@ ProgressBar pb;
       }
 
       if(v == imgV){
-          Bitmap bitm = bitmap != null ? bitmap : bmFromCloud;
+          Bitmap bitm = rotatedBitmap != null ? rotatedBitmap : bmFromCloud;
           createFullDialog(bitm);
       }
 
@@ -540,6 +540,11 @@ ProgressBar pb;
               useremail.requestFocus();
               return;
           }
+          if(emailstr.equals(currentUser.getEmail())){
+              useremail.setError("האימייל משויך לך");
+              useremail.requestFocus();
+              return;
+          }
           emailstr = emailstr.split("@")[0];
           DatabaseReference itemRef =  myRef.child("usersuid").child(emailstr);
           String finalEmailstr = emailstr;
@@ -556,7 +561,8 @@ ProgressBar pb;
                       DatabaseReference allDRef =  myRef.child("allDocs").child(id).child("participants").child(struser);
                       userRef.setValue(di);
                       allDRef.setValue("editor");
-                      Toast.makeText(getApplicationContext(),"share success",Toast.LENGTH_LONG).show();
+                      Toast.makeText(getApplicationContext(),"נשלחה בקשה לשיתוף",Toast.LENGTH_LONG).show();
+                      shareDialog.dismiss();
                   }
               }
           });

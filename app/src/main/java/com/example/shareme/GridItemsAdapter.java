@@ -6,10 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Map;
 
 public class GridItemsAdapter extends ArrayAdapter<Docinfo> {
     private static final String TAG = "GridItemsAdapter";
@@ -31,12 +29,32 @@ public class GridItemsAdapter extends ArrayAdapter<Docinfo> {
         mResource = resource;
     }
 
+    public static class ViewHolder {
+        TextView titleDoc;
+        TextView dateDoc;
+    }
+
+
     @RequiresApi(api = Build.VERSION_CODES.N)
     @NonNull
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-        String title = String.valueOf(getItem(position).getTitle());
-        String datetime = getItem(position).getCreateTime();
+        ViewHolder holder;
+
+        if (convertView == null) {
+            convertView = LayoutInflater.from(getContext()).inflate(
+                    R.layout.row_item, parent, false);
+
+            holder = new ViewHolder();
+            holder.titleDoc = (TextView) convertView.findViewById(R.id.titleDoc);
+            holder.dateDoc = (TextView) convertView.findViewById(R.id.dateDoc);
+            convertView.setTag(holder);
+        }else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        Docinfo currentDoc = getItem(position);
+        holder.titleDoc.setText(currentDoc.getTitle());
+        String datetime = currentDoc.getCreateTime();
         String date = datetime.split("T")[0];
         LocalDate dateObj = LocalDate.parse(date);
         LocalDate dateObj2 = LocalDate.now();
@@ -47,12 +65,7 @@ public class GridItemsAdapter extends ArrayAdapter<Docinfo> {
         }else {
             datetime = date;
         }
-        LayoutInflater inflater = LayoutInflater.from(mContext);
-        convertView = inflater.inflate(mResource, parent, false);
-        TextView titleDoc = convertView.findViewById(R.id.titleDoc);
-        TextView dateDoc = convertView.findViewById(R.id.dateDoc);
-        titleDoc.setText(title);
-        dateDoc.setText(datetime);
+        holder.dateDoc.setText(datetime);
         return convertView;
     }
 

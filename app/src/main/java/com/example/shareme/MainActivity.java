@@ -1,7 +1,5 @@
 package com.example.shareme;
 
-import static android.content.ContentValues.TAG;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
@@ -16,25 +14,19 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -53,14 +45,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
-import java.io.File;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemClickListener, AdapterView.OnItemLongClickListener {
     ImageView im;
@@ -70,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     FirebaseDatabase database;
     DatabaseReference myRef;
     FirebaseUser currentUser;
-    TextView alert2;
+    TextView alert2,cart_badge;
     private ArrayList<Docinfo> gridItems;
     private GridItemsAdapter adap;
     Docinfo docItem;
@@ -84,6 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     EditText listName,editsearch;
     Button btnfinish;
     FrameLayout mainlayout;
+    static int count;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,7 +91,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         alert2 = findViewById(R.id.alert2);
         viewprofile = findViewById(R.id.viewprofile);
         mainlayout = findViewById(R.id.mainlayout);
+        cart_badge = findViewById(R.id.cart_badge);
         alert2.setVisibility(View.INVISIBLE);
+        cart_badge.setVisibility(View.GONE);
         pb = findViewById(R.id.pb);
         pb.setVisibility(View.VISIBLE);
         viewprofile.setOnClickListener(this);
@@ -138,6 +133,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             myRef.child("usersuid").child(email).setValue(currentUser.getUid());
             myRef.child("usernames").child(currentUser.getUid()).setValue(currentUser.getDisplayName());
             Picasso.get().load(currentUser.getPhotoUrl()).into(im);
+            getDatabase(myRef.child("users").child(currentUser.getUid()).child("userdocs"));
+            getPending();
         }else{
             showSignUpage();
         }
@@ -149,29 +146,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         startActivity(signUppage);
     }
 
-    public void getDatabase(DatabaseReference myRef){
-        ValueEventListener postListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
+    public void getDatabase(DatabaseReference docsuserRef){
+        docsuserRef.addValueEventListener(new ValueEventListener() {
+            public void onDataChange(DataSnapshot snapshot) {
+                count = 0;
                 gridItems = new ArrayList<Docinfo>();
-                if(dataSnapshot.getValue() == "null"){
-                    loadGridItems();
-                    return;
-                }
-                for (DataSnapshot postSnapshot: dataSnapshot.getChildren()) {
-                    Docinfo d = postSnapshot.getValue(Docinfo.class);
-                    gridItems.add(d);
-                }
-                loadGridItems();
+                final int target = (int) snapshot.getChildrenCount();
+                    for (DataSnapshot docKey: snapshot.getChildren()) {
+                        myRef.child("allDocs").child(docKey.getKey()).get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                            @Override
+                            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                                Docinfo d = task.getResult().getValue(Docinfo.class);
+                                gridItems.add(d);
+                                checkComplete(target);
+                            }
+                        });
+                    }
             }
 
             @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Getting Post failed, log a message
-                Log.w(TAG, "loadPost:onCancelled", databaseError.toException());
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
-        };
-        myRef.addValueEventListener(postListener);
+        });
+    }
+
+    private synchronized void checkComplete(int target) {
+        count++;
+        if (count == target) {
+            loadGridItems();
+            return;
+        }
     }
 
     public void getPending(){
@@ -180,7 +185,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (task.getResult().exists()) {
-                    Toast.makeText(getApplicationContext(),"ממתינות לך בקשות חדשות", Toast.LENGTH_LONG).show();
+                    cart_badge.setText(String.valueOf(task.getResult().getChildrenCount()));
+                    cart_badge.setVisibility(View.VISIBLE);
                 }
             }
         });
@@ -201,6 +207,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     public void loadGridItems() {
+        Collections.sort(gridItems, new Comparator<Docinfo>() {
+            @Override
+            public int compare(Docinfo o1, Docinfo o2) {
+                return o1.getCreateTime().compareTo(o2.getCreateTime());
+            }
+        });
+        Collections.reverse(gridItems);
         adap = new GridItemsAdapter(this, R.layout.row_item, gridItems);
         gvdocs.setAdapter(adap);
         pb.setVisibility(View.INVISIBLE);
@@ -265,7 +278,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         if(v == addBtn){
-            addDoc("targetList","הרשימה החדשה שלי");
+            addDoc("targetList","רשימה חדשה");
         }
         if(v == btndelete){
             gridItems.remove(docItemSelected);
@@ -357,8 +370,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
                 NetworkInfo networkInfo = cm.getActiveNetworkInfo();
                 if(networkInfo != null && networkInfo.isConnected()){
-                    getDatabase(myRef.child("users").child(currentUser.getUid()).child("userdocs"));
-                    getPending();
+
                 } else
                     Toast.makeText(context.getApplicationContext(), "אין חיבור לאינטרנט", Toast.LENGTH_SHORT).show();
 

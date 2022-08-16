@@ -21,21 +21,46 @@
             android:layoutDirection="ltr"
             android:layout_marginTop="30dp"
             >
-            <androidx.cardview.widget.CardView
-                android:layout_width="45dp"
-                android:layout_height="45dp"
+            <FrameLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_marginEnd="105dp"
-                android:elevation="12dp"
-                android:id="@+id/viewprofile"
-                app:cardCornerRadius="40dp"
-                android:layout_centerHorizontal="true">
-                <ImageView
-                    android:id="@+id/userImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/userprofile"
-                    />
-            </androidx.cardview.widget.CardView>
+                android:padding="8dp"
+                android:clipToPadding="false"
+                android:focusable="true">
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:elevation="12dp"
+                    android:id="@+id/viewprofile"
+                    app:cardCornerRadius="40dp"
+                    android:layout_centerHorizontal="true">
+                    <ImageView
+                        android:id="@+id/userImage"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/userprofile"
+                        />
+
+                </androidx.cardview.widget.CardView>
+                <TextView
+                    android:id="@+id/cart_badge"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="right|end|top"
+                    android:layout_marginEnd="-7dp"
+                    android:layout_marginRight="-5dp"
+                    android:layout_marginTop="1dp"
+                    android:translationZ="90dp"
+                    android:background="@drawable/badge_background"
+                    android:gravity="center"
+                    android:padding="3dp"
+                    android:textColor="@android:color/white"
+                    android:text="1"
+                    android:textSize="10sp"/>
+            </FrameLayout>
+
 
 
         <TextView
