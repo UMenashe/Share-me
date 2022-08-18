@@ -50,9 +50,6 @@
             android:name=".list_display"
             android:exported="false" />
         <activity
-            android:name=".choose_type"
-            android:exported="false" />
-        <activity
             android:name=".signup_page"
             android:exported="false" />
         <activity
