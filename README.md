@@ -14,12 +14,24 @@ For example, when planning a picnic with friends, each participant can join the 
 - **Google Authentication** – Secure login powered by Firebase Authentication.
 - **Cloud Storage** – Firebase Firestore ensures real-time updates and synchronization.
 
-## 📷 Screenshots
-_Add your screenshots here_
+
 
 ## 🛠 Tech Stack
 - **Android (Java)** – The app is built using native Android development in Java.
 - **Firebase** – Used for authentication and real-time cloud storage.
+
+## 📷 Screenshots
+<p align="center">
+  <img src="app/src/main/res/drawable/main img.png" alt="Main Image" width="900" style="display: block;"/>
+</p>
+
+<p style="display: flex; justify-content: center; flex-wrap: warp;">
+  <img src="app/src/main/res/drawable/Screenshot_20220817-111655.jpg" alt="Screenshot 2" width="190" style="margin: 5px;"/>
+  <img src="app/src/main/res/drawable/Screenshot_20220817-111703.jpg" alt="Screenshot 3" width="190" style="margin: 5px;"/>
+  <img src="app/src/main/res/drawable/Screenshot_20220817-111951.jpg" alt="Screenshot 4" width="190" style="margin: 5px;"/>
+  <img src="app/src/main/res/drawable/Screenshot_20220817-112030.JPEG" alt="Screenshot 5" width="190" style="margin: 5px;"/>
+  <img src="app/src/main/res/drawable/Screenshot_20220817-112228.jpg" alt="Screenshot 6" width="190" style="margin: 5px;"/>
+</p>
 
 ---
 Stay tuned for updates and improvements! 🚀
