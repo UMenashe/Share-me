@@ -30,7 +30,6 @@ For example, when planning a picnic with friends, each participant can join the 
   <img src="app/src/main/res/drawable/Screenshot_20220817-111703.jpg" alt="Screenshot 3" width="180" style="margin: 5px;"/>
   <img src="app/src/main/res/drawable/Screenshot_20220817-111951.jpg" alt="Screenshot 4" width="180" style="margin: 5px;"/>
   <img src="app/src/main/res/drawable/Screenshot_20220817-112030.JPEG" alt="Screenshot 5" width="180" style="margin: 5px;"/>
-  <img src="app/src/main/res/drawable/Screenshot_20220817-112228.jpg" alt="Screenshot 6" width="180" style="margin: 5px;"/>
 </p>
 
 ---
